@@ -1,0 +1,68 @@
+{{define "dailyEmail"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Potential trades via the Open Credit Network</title>
+  </head>
+
+  <body>
+    <main>
+      <div>
+        {{if or .MatchedOffers .MatchedWants}}
+        <p>Good news!</p>
+        {{if .MatchedOffers}}
+        <div>
+          <h2>Matched Offers</h2>
+          <p>There are new customers on the Open Credit Network who want what you're offering:</p>
+          <div>
+            <ul>
+                {{ range $myWant, $matchedOffers := .MatchedOffers }}
+                <li>
+                    <span style="margin-top:5px;margin-bottom:5px;margin:auto;padding: 0px 5px;display: inline-block;vertical-align: middle;border-radius: 5px;background: #003fa7;color: #ffffff;">{{ $myWant }}</span> -
+                    <a
+                    href="{{$.URL}}/businesses/search/match-tags?page=1&created_on_or_after={{FormatTime $.User.LastNotificationSentDate}}&tag_type=wants&tags={{$myWant}}#results">
+                    See the full details and get in touch
+                    </a>
+                </li>
+                {{ end }}
+            </ul>
+          </div>
+        </div>
+        {{ end }}
+
+        <br />
+
+        {{if .MatchedWants}}
+        <div>
+          <h2>Matched Wants</h2>
+          <p>There are new suppliers on the Open Credit Network who are offering what you want:</p>
+          <div>
+              <ul>
+                {{ range $myOffer, $matchedWants := .MatchedWants }}
+                <li>
+                    <span style="margin-top:5px;margin-bottom:5px;margin:auto;padding: 0px 5px;display: inline-block;vertical-align: middle;border-radius: 5px;background: #f7a502;color: #ffffff;">{{ $myOffer }}</span> - 
+                    <a
+                    href="{{$.URL}}/businesses/search/match-tags?page=1&created_on_or_after={{FormatTime $.User.LastNotificationSentDate}}&tag_type=offers&tags={{$myOffer}}#results">
+                    See the full details and get in touch
+                    </a>
+                </li>
+                {{ end }}
+            </ul>
+          </div>
+        </div>
+        {{ end }}
+        <p>If your wants, offers or business details have changed, please <a href="{{$.URL}}/account">update your listing</a>.</p>
+
+        <p>You can also unsubscribe from these emails by <a href="{{$.URL}}/account">following this link</a>.</p>
+
+        <p>Happy trading!<br>
+        The Open Credit Network</p>
+        {{ end }}
+      </div>
+    </main>
+  </body>
+</html>
+{{ end }}

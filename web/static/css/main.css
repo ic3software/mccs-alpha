@@ -1,0 +1,100 @@
+.all-content {
+    display       : flex;
+    min-height    : 100vh;
+    flex-direction: column;
+}
+
+.all-content-main {
+    margin-top   : 6em;
+    margin-bottom: 2em;
+    flex         : 1;
+}
+
+.login-box {
+    max-width: 450px;
+}
+
+.ui.container.topnav {
+    overflow: hidden;
+}
+
+.ui.container.topnav a {
+    float  : left;
+    display: block;
+}
+
+.ui.container.topnav .menu-icon {
+    display: none;
+}
+
+.menu-icon {
+    display: none;
+}
+
+/* for menu */
+@media screen and (max-width: 600px) {
+    .ui.container.topnav a:not(:first-child) {
+        display: none;
+    }
+
+    .ui.container.topnav .menu-icon {
+        float  : right;
+        display: block;
+    }
+
+    .ui.form .field>label {
+        margin-top: 1.5em;
+    }
+}
+
+/* for pagination */
+@media screen and (max-width: 425px) {
+    tfoot {
+        display: flex !important;
+        justify-content: center !important;
+    }
+    .pagination.menu {
+        font-size: 10px;
+    }
+    .right-chevron, .left-chevron {
+        display: none !important;
+    }
+}
+
+.server-success, .ajax-success, .server-error, .ajax-error {
+    margin-bottom: 15px !important;
+}
+
+.anchored { padding-top: 4em !important; }
+
+/* for search box */
+
+.spaced {
+    margin-top: 1em !important;
+    margin-bottom: 1em !important;
+}
+
+.active-link {
+    color: #4183c4;
+    cursor: pointer;
+  }
+
+.padded {
+    margin-top: 0.25em !important;
+    margin-bottom: 0.25em !important;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 5px 10px;
+    border-radius: 50%;
+    background: red;
+    color: white;
+}
+
+/* for browse directory tab */
+.alphabet-list {
+    font-size: 1.8rem;
+}

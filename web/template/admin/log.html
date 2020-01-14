@@ -1,0 +1,252 @@
+{{ define "content" }}
+<h1 class="ui primary header">Activity Logs</h1>
+<div class="ui segment secondary">
+    <form action="/admin/log/search#results" method="get" class="ui form">
+        <input maxlength="255" name="page" value="1" hidden>
+        <div class="four fields">
+        <div class="field">
+            <label>Email:</label>
+            {{if .FormData.Email}}
+            <input maxlength="100" name="email" value="{{.FormData.Email}}">
+            {{else}}
+            <input maxlength="100" name="email" value="">
+            {{end}}
+        </div>
+        <div class="field">
+            <label>Category:</label>
+            <div class="ui selection dropdown">
+                {{if .FormData.Category}}
+                <input maxlength="50" type="hidden" name="category" value="{{.FormData.Category}}">
+                {{else}}
+                <input maxlength="50" type="hidden" name="category" value="">
+                {{end}}
+                <i class="dropdown icon"></i>
+                <div class="default text">Select one...</div>
+                <div class="menu">
+                    <div class="item" data-value="">All</div>
+                    <div class="item" data-value="user">User</div>
+                    <div class="item" data-value="admin">Admin</div>
+                </div>
+            </div>
+        </div>
+            <div class="field">
+                <label>Date/Time From:</label>
+                <div class="ui calendar" id="rangestart">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input maxlength="255" type="text" placeholder="Start" name="date-from" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label>Date/Time To:</label>
+                <div class="ui calendar" id="rangeend">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input maxlength="255" type="text" placeholder="End" name="date-to" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="margin: 1.5em;"></div>
+        <input type="submit" value="Search" class="ui primary button">
+    </form>
+</div>
+
+
+{{if .UserActions}}
+<h2 id="results" class="ui medium header anchored">Results</h2>
+<table class="ui celled padded table">
+    <thead>
+        <th>Date</th>
+        <th>Email</th>
+        <th>Action</th>
+        <th>Details</th>
+    </thead>
+    <tbody>
+        {{ range $index, $userAction := .UserActions }}
+        <tr id="{{IDToString $userAction.ID}}">
+            <td style="width:200px">{{FormatTime $userAction.CreatedAt}}</td>
+            <td>{{$userAction.Email}}</td>
+            <td style="width:200px">{{$userAction.Action}}</td>
+            <td>{{$userAction.ActionDetails}}</td>
+        </tr>
+        {{ end }}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="6">
+                <div class="ui right floated pagination menu">
+                    {{/* < */}}
+                    {{if gt .FormData.Page 1}}
+                    <a class="icon item left-chevron"
+                        href="/admin/log/search?page={{Minus .FormData.Page 1}}&email={{.FormData.Email}}&category={{.FormData.Category}}&date-from={{.FormData.DateFrom}}&date-to={{.FormData.DateTo}}#results">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    {{else}}
+                    <a class="icon item disabled left-chevron">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    {{end}}
+
+                    {{/* FirstPage */}}
+                    <a class="{{if eq .FormData.Page 1}}active{{end}} item"
+                        href="/admin/log/search?page=1&email={{.FormData.Email}}&category={{.FormData.Category}}&date-from={{.FormData.DateFrom}}&date-to={{.FormData.DateTo}}#results">
+                        1
+                    </a>
+
+                    {{/* ... */}}
+                    {{if gt .TotalPages 9}}
+                    {{if gt .FormData.Page 4 }}
+                    <a class="icon item disabled">
+                        ...
+                    </a>
+                    {{end}}
+                    {{end}}
+
+                    {{/* if 1 < page < 10 */}}
+                    {{if and (gt .TotalPages 1) (lt .TotalPages 10)}}
+                    {{range $_, $v := N 2 .TotalPages}}
+                    <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                        href="/admin/log/search?page={{$v}}&email={{$.FormData.Email}}&category={{$.FormData.Category}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                        {{$v}}
+                    </a>
+                    {{end}}
+                    {{end}}
+                    {{/* if page => 10 */}}
+                    {{if ge .TotalPages 10}}
+                    {{if lt (Add .FormData.Page 4) .TotalPages}}
+                    {{if ge .FormData.Page 4}}
+                    {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                    <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                        href="/admin/log/search?page={{$v}}&email={{$.FormData.Email}}&category={{$.FormData.Category}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                        {{$v}}
+                    </a>
+                    {{end}}
+                    {{else}}
+                    {{range $_, $v := N 2 5}}
+                    <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                        href="/admin/log/search?page={{$v}}&email={{$.FormData.Email}}&category={{$.FormData.Category}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                        {{$v}}
+                    </a>
+                    {{end}}
+                    {{end}}
+                    {{else}}
+                    {{if le (Add .FormData.Page 3) .TotalPages}}
+                    {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                    <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                        href="/admin/log/search?page={{$v}}&email={{$.FormData.Email}}&category={{$.FormData.Category}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                        {{$v}}
+                    </a>
+                    {{end}}
+                    {{else}}
+                    {{range $_, $v := N (Minus .TotalPages 4) (Minus .TotalPages 1)}}
+                    <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                        href="/admin/log/search?page={{$v}}&email={{$.FormData.Email}}&category={{$.FormData.Category}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                        {{$v}}
+                    </a>
+                    {{end}}
+                    {{end}}
+                    {{end}}
+                    {{end}}
+
+                    {{/* ... */}}
+                    {{if gt .TotalPages 9}}
+                    {{if lt (Add .FormData.Page 3) .TotalPages}}
+                    <a class="icon item disabled">
+                        ...
+                    </a>
+                    {{end}}
+                    {{end}}
+
+                    {{/* lastPage */}}
+                    {{if gt .TotalPages 9}}
+                    <a class="{{if eq .FormData.Page .TotalPages}}active{{end}} item"
+                        href="/admin/log/search?page={{.TotalPages}}&email={{$.FormData.Email}}&category={{$.FormData.Category}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                        {{.TotalPages}}
+                    </a>
+                    {{end}}
+
+                    {{/* > */}}
+                    {{if lt .FormData.Page .TotalPages}}
+                    <a class="icon item right-chevron"
+                        href="/admin/log/search?page={{Add .FormData.Page 1}}&email={{.FormData.Email}}&category={{.FormData.Category}}&date-from={{.FormData.DateFrom}}&date-to={{.FormData.DateTo}}#results">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    {{else}}
+                    <a class="icon disabled item right-chevron">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    {{end}}
+                </div>
+            </th>
+        </tr>
+    </tfoot>
+</table>
+{{ end }}
+
+<script>
+    // Semantic Calendar
+    {{if .FormData.DateFrom}}
+        $('#rangestart').calendar({
+            initialDate: new Date("{{.FormData.DateFrom}}"),
+            endCalendar: $('#rangeend'),
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{else}}
+        $('#rangestart').calendar({
+            endCalendar: $('#rangeend'),
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{end}}
+
+    {{if .FormData.DateTo}}
+        $('#rangeend').calendar({
+            initialDate: new Date("{{.FormData.DateTo}}"),
+            startCalendar: $('#rangestart'),
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{else}}
+        $('#rangeend').calendar({
+            startCalendar: $('#rangestart'),
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{end}}
+</script>
+{{ end }}

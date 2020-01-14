@@ -1,0 +1,430 @@
+{{ define "content" }}
+{{if not .IsUserLoggedIn}}
+<div class="ui orange message"><span style="font-size: large;">Create a FREE business listing to find new suppliers and customers - <a href="/signup">Sign Up now!</a></span></div>
+{{end}}
+
+<div id="upgrade-message" class="ui success message" style="display:none;">
+    <h4>Upgrade to a full Trading Member</h4>
+    <p>Unlock the full potential of the Open Credit Network by applying to become a Trading Member.</p>
+    <p>Trading via mutual credit is FREE during our alpha release and, if your business meets the application criteria, you will be awarded an interest free line of credit allowing you to trade with other businesses straight away. <a href="https://opencredit.network/become-a-trading-member/" target="_blank">Find out more</a> and <a href="/member-signup">apply now</a>.</p>
+</div>
+
+<h1 class="ui primary header">Find Businesses</h1>
+<div class="ui top attached tabular menu">
+  <a onclick="onChangeTab()" class="item active" data-tab="search" style="user-select: auto;">Search</a>
+  <a onclick="onChangeTab()" class="item" data-tab="browse" style="user-select: auto;">Browse</a>
+</div>
+<div class="ui bottom attached tab segment active" data-tab="search">
+<div class="ui segment secondary">
+    <form id="search-from" action="/businesses/search" method="get" class="ui form">
+        <input maxlength="255" name="page" value="1" hidden>
+        <div>Search the directory for supplies or customers</div>
+        <div class="inline fields">
+            <div class="spaced five wide field">
+                <div class="ui form">
+                <div class="grouped fields">
+                    <div class="field">
+                    <div class="ui radio checkbox">
+                        {{if eq .FormData.TagType "offers"}}
+                        <input type="radio" name="tag_type" value="offers" checked="checked">
+                        {{else}}
+                            {{/* default value */}}
+                            {{if ne .FormData.TagType "wants"}}
+                            <input type="radio" name="tag_type" value="offers" checked="checked" id="offers">
+                            {{else}}
+                            <input type="radio" name="tag_type" value="offers" id="offers">
+                            {{end}}
+                        {{end}}
+                        <label for="offers">I am looking for businesses who are offering</label>
+                    </div>
+                    </div>
+                    <div class="field">
+                    <div class="ui radio checkbox">
+                        {{if eq .FormData.TagType "wants"}}
+                        <input type="radio" name="tag_type" value="wants" checked="checked" id="wants">
+                        {{else}}
+                        <input type="radio" name="tag_type" value="wants" id="wants">
+                        {{end}}
+                        <label for="wants">I am looking for businesses who want</label>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="five wide field">
+                {{if .FormData.Tags}}
+                <input class="user-input" maxlength="100" name="tags" value="{{TagsToSearchString .FormData.Tags}}">
+                {{else}}
+                <input class="user-input" maxlength="100" name="tags">
+                {{end}}
+            </div>
+            <div class="spaced three wide field">
+                <button id="submit-button" class="ui primary button">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        {{if .IsUserLoggedIn}}
+        <div>
+            <div class="fields">
+                <div class="seven wide field">
+                    <div class="ui toggle checkbox">
+                        {{if .FormData.ShowUserFavoritesOnly}}
+                        <input type="checkbox" name="show-favorites-only" value="true" checked onChange="this.form.submit()">
+                        {{else}}
+                        <input type="checkbox" name="show-favorites-only" value="true" onChange="this.form.submit()">
+                        {{end}}
+                        <label>Show My Favorites <i class="red heart icon"></i></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </form>
+</div>
+</div>
+<div class="ui bottom attached tab segment" data-tab="browse">
+    <div class="ui segment secondary">
+        <div>Browse the directory by category</div>
+        <br />
+        <div>
+            <span {{if ContainPrefix .Categories `a`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('a')" data-prefix="a">A</span>-
+            <span {{if ContainPrefix .Categories `b`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('b')" data-prefix="b">B</span>-
+            <span {{if ContainPrefix .Categories `c`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('c')" data-prefix="c">C</span>-
+            <span {{if ContainPrefix .Categories `d`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('d')" data-prefix="d">D</span>-
+            <span {{if ContainPrefix .Categories `e`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('e')" data-prefix="e">E</span>-
+            <span {{if ContainPrefix .Categories `f`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('f')" data-prefix="f">F</span>-
+            <span {{if ContainPrefix .Categories `g`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('g')" data-prefix="g">G</span>-
+            <span {{if ContainPrefix .Categories `h`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('h')" data-prefix="h">H</span>-
+            <span {{if ContainPrefix .Categories `i`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('i')" data-prefix="i">I</span>-
+            <span {{if ContainPrefix .Categories `j`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('j')" data-prefix="j">J</span>-
+            <span {{if ContainPrefix .Categories `k`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('k')" data-prefix="l">K</span>-
+            <span {{if ContainPrefix .Categories `l`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('l')" data-prefix="l">L</span>-
+            <span {{if ContainPrefix .Categories `m`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('m')" data-prefix="m">M</span>-
+            <span {{if ContainPrefix .Categories `n`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('n')" data-prefix="n">N</span>-
+            <span {{if ContainPrefix .Categories `o`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('o')" data-prefix="o">O</span>-
+            <span {{if ContainPrefix .Categories `p`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('p')" data-prefix="p">P</span>-
+            <span {{if ContainPrefix .Categories `q`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('q')" data-prefix="q">Q</span>-
+            <span {{if ContainPrefix .Categories `r`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('r')" data-prefix="r">R</span>-
+            <span {{if ContainPrefix .Categories `s`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('s')" data-prefix="s">S</span>-
+            <span {{if ContainPrefix .Categories `t`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('t')" data-prefix="t">T</span>-
+            <span {{if ContainPrefix .Categories `u`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('u')" data-prefix="u">U</span>-
+            <span {{if ContainPrefix .Categories `v`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('v')" data-prefix="v">V</span>-
+            <span {{if ContainPrefix .Categories `w`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('w')" data-prefix="w">W</span>-
+            <span {{if ContainPrefix .Categories `x`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('x')" data-prefix="x">X</span>-
+            <span {{if ContainPrefix .Categories `y`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('y')" data-prefix="y">Y</span>-
+            <span {{if ContainPrefix .Categories `z`}}class="alphabet-list active-link"{{else}}class="alphabet-list"{{end}} onclick="handleClickPrefix('z')" data-prefix="z">Z</span>
+        </div>
+
+        <br />
+        <div id="category-list"></div>
+    </div>
+</div>
+
+
+{{if .Result}}
+<div id="results">
+    <table class="ui padded table">
+        <tbody>
+            {{ range $index, $business := .Result.Businesses }}
+            <tr id="{{IDToString $business.ID}}">
+                <td>
+                    <p style="display: flex; align-items: center;">
+                        <a href="/businessPage/{{IDToString $business.ID}}"><span class="ui large text">{{$business.BusinessName}}</span></a>&nbsp;&nbsp;
+                        {{if $.IsUserLoggedIn}}
+                            {{if (IncludesID $.FavoriteBusinesses $business.ID)}}
+                            <i
+                                class="red heart icon favorite-{{IDToString $business.ID}}"
+                                onclick="handleClickFavorite('{{IDToString $business.ID}}')">
+                            </i>
+                            {{else}}
+                            <i
+                                class="heart outline icon favorite-{{IDToString $business.ID}}"
+                                onclick="handleClickFavorite('{{IDToString $business.ID}}')">
+                            </i>
+                            {{end}}
+                        {{end}}
+                        {{if eq $business.Status "tradingAccepted"}}
+                            <a href="https://opencredit.network/become-a-trading-member/">
+                                <img style="height: 35px; padding-left: 5px;" src="/static/img/trading-member-icon.svg" alt="trading-member-icon">
+                            </a>
+                        {{end}}
+                    </p>
+                    <p>{{if lt (len $business.Description) 90 }}
+                        {{$business.Description}}
+                        {{else}}
+                        {{printf "%.85s" $business.Description}}...
+                        {{end}}
+                    </p>
+                    {{if $business.LocationCity}}
+                        <p><i class="map marker alternate icon"></i> <b>{{$business.LocationCity}}</b></p>
+                    {{end}}
+                </td>
+                <td class="center aligned" style="width:20em;">
+                    <a href="/businessPage/{{IDToString $business.ID}}" class="ui primary button">
+                        More About This Business
+                    </a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="6">
+                    <div class="ui right floated pagination menu">
+                        {{/* < */}}
+                        {{if gt .FormData.Page 1}}
+
+                        {{if not .FormData.Category}}
+                            <a class="icon item left-chevron" href="/businesses/search?page={{Minus .FormData.Page 1}}&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&show-favorites-only={{.FormData.ShowUserFavoritesOnly}}">
+                        {{else}}
+                            <a class="icon item left-chevron" href="/businesses/search?page={{Minus .FormData.Page 1}}&category={{.FormData.Category}}">
+                        {{end}}
+                            <i class="left chevron icon"></i>
+                        </a>
+                        {{else}}
+                        <a class="icon item disabled left-chevron">
+                            <i class="left chevron icon"></i>
+                        </a>
+                        {{end}}
+
+                        {{/* FirstPage */}}
+                        {{if not .FormData.Category}}
+                            <a class="{{if eq .FormData.Page 1}}active{{end}} item" href="/businesses/search?page=1&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&show-favorites-only={{.FormData.ShowUserFavoritesOnly}}">1</a>
+                        {{else}}
+                            <a class="{{if eq .FormData.Page 1}}active{{end}} item" href="/businesses/search?page=1&category={{.FormData.Category}}">1</a>
+                        {{end}}
+
+                        {{/* ... */}}
+                        {{if gt .Result.TotalPages 9}}
+                        {{if gt .FormData.Page 4 }}
+                        <a class="icon item disabled">
+                            ...
+                        </a>
+                        {{end}}
+                        {{end}}
+
+                        {{/* if 1 < page < 10 */}}
+                        {{if and (gt .Result.TotalPages 1) (lt .Result.TotalPages 10)}}
+                        {{range $_, $v := N 2 .Result.TotalPages}}
+                            {{if not $.FormData.Category}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item"href="/businesses/search?page={{$v}}&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&show-favorites-only={{$.FormData.ShowUserFavoritesOnly}}">{{$v}}</a>
+                            {{else}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item"href="/businesses/search?page={{$v}}&category={{$.FormData.Category}}">{{$v}}</a>
+                            {{end}}
+                        {{end}}
+                        {{end}}
+                        {{/* if page => 10 */}}
+                        {{if ge .Result.TotalPages 10}}
+                        {{if lt (Add .FormData.Page 4) .Result.TotalPages}}
+                        {{if ge .FormData.Page 4}}
+                        {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                            {{if not $.FormData.Category}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&show-favorites-only={{$.FormData.ShowUserFavoritesOnly}}">{{$v}}</a>
+                            {{else}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&category={{$.FormData.Category}}">{{$v}}</a>
+                            {{end}}
+                        {{end}}
+                        {{else}}
+                        {{range $_, $v := N 2 5}}
+                            {{if not $.FormData.Category}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&show-favorites-only={{$.FormData.ShowUserFavoritesOnly}}">{{$v}}</a>
+                            {{else}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&category={{$.FormData.Category}}">{{$v}}</a>
+                            {{end}}
+                        {{end}}
+                        {{end}}
+                        {{else}}
+                        {{if le (Add .FormData.Page 3) .Result.TotalPages}}
+                        {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                            {{if not $.FormData.Category}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&show-favorites-only={{$.FormData.ShowUserFavoritesOnly}}">{{$v}}</a>
+                            {{else}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&category={{$.FormData.Category}}">{{$v}}</a>
+                            {{end}}
+                        {{end}}
+                        {{else}}
+                        {{range $_, $v := N (Minus .Result.TotalPages 4) (Minus .Result.TotalPages 1)}}
+                            {{if not $.FormData.Category}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&show-favorites-only={{$.FormData.ShowUserFavoritesOnly}}">{{$v}}</a>
+                            {{else}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/businesses/search?page={{$v}}&category={{$.FormData.Category}}">{{$v}}</a>
+                            {{end}}
+                        {{end}}
+                        {{end}}
+                        {{end}}
+                        {{end}}
+
+                        {{/* ... */}}
+                        {{if gt .Result.TotalPages 9}}
+                        {{if lt (Add .FormData.Page 3) .Result.TotalPages}}
+                        <a class="icon item disabled">
+                            ...
+                        </a>
+                        {{end}}
+                        {{end}}
+
+                        {{/* lastPage */}}
+                        {{if gt .Result.TotalPages 9}}
+                            {{if not .FormData.Category}}
+                                <a class="{{if eq .FormData.Page .Result.TotalPages}}active{{end}} item" href="/businesses/search?page={{.Result.TotalPages}}&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&show-favorites-only={{.FormData.ShowUserFavoritesOnly}}">{{.Result.TotalPages}}</a>
+                            {{else}}
+                                <a class="{{if eq .FormData.Page .Result.TotalPages}}active{{end}} item" href="/businesses/search?page={{.Result.TotalPages}}&category={{.FormData.Category}}">{{.Result.TotalPages}}</a>
+                            {{end}}
+                        {{end}}
+
+                        {{/* > */}}
+                        {{if lt .FormData.Page .Result.TotalPages}}
+                            {{if not .FormData.Category}}
+                                <a class="icon item right-chevron" href="/businesses/search?page={{Add .FormData.Page 1}}&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&show-favorites-only={{.FormData.ShowUserFavoritesOnly}}">
+                            {{else}}
+                                <a class="icon item right-chevron" href="/businesses/search?page={{Add .FormData.Page 1}}&category={{.FormData.Category}}">
+                            {{end}}
+                                    <i class="right chevron icon"></i>
+                                </a>
+                        {{else}}
+                        <a class="icon disabled item right-chevron">
+                            <i class="right chevron icon"></i>
+                        </a>
+                        {{end}}
+                    </div>
+                </th>
+            </tr>
+        </tfoot>
+    </table>
+<div>
+{{ end }}
+
+<script>
+    // Semantic Calendar
+    {{if .FormData.CreatedOnOrAfter}}
+        $('#created_on_or_after').calendar({
+            initialDate: new Date("{{.FormData.CreatedOnOrAfter}}"),
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{else}}
+        $('#created_on_or_after').calendar({
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{end}}
+
+    // Submit on enter the keyboard.
+    const elementsArray = document.querySelectorAll(".user-input");
+    elementsArray.forEach(element => {
+        element.addEventListener("keyup", e => {
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                document.getElementById("submit-button").click();
+            }
+        });
+    });
+
+    // Activate the semantic UI Tab.
+    $('.menu .item').tab();
+
+    const onChangeTab = () => {
+        $("#results").toggle();
+        $(".ajax-error").hide();
+    }
+
+    // Category fetching
+    const handleClickPrefix = prefix =>
+        new Promise(resolve => {
+            $(`.alphabet-list[data-prefix="${prefix}"]`).css("font-weight","Bold");
+            // Fetch category list.
+            $.ajax({
+                url: "/api/admin-tags/list/" + prefix,
+                contentType: "application/json",
+                dataType: 'json',
+                success: tags => {
+                    if (tags === null) {
+                        return
+                    }
+                    tags.sort()
+
+                    // Build the category HTML.
+                    list = ""
+                    tags.forEach(tag => list += `
+                        <a
+                            class="four wide column category"
+                            data-name="${tag}"
+                            href="/businesses/search?page=1&prefix=${prefix}&category=${tag}#browse"
+                        >
+                            ${tag}
+                        </a>
+                    `)
+                    const html = `
+                    <div class="ui grid">
+                        ${list}
+                    </div>
+                    `
+                    $("#category-list").empty();
+                    $("#category-list").append(html);
+                    resolve()
+                }
+            })
+        });
+
+    const changeToBrowseTab = async () => {
+        const anchor = window.top.location.hash.substr(1);
+        if (anchor !== "browse") {
+            return;
+        }
+        $.tab("change tab", "browse");
+        $('.menu .item[data-tab="search"]').removeClass("active");
+        $('.menu .item[data-tab="browse"]').addClass("active");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const prefix = urlParams.get("prefix");
+        if (prefix === null) {
+            return;
+        }
+        await handleClickPrefix(prefix);
+
+        const category = urlParams.get("category");
+        if (prefix === null) {
+            return;
+        }
+        $(`.category[data-name="${category}"]`).css("font-weight","Bold");
+    }
+    changeToBrowseTab()
+
+    const checkBusinessStatus = () =>
+        $.ajax({
+            url: "/api/businessStatus",
+            contentType: "application/json",
+            dataType: 'json',
+            success: data => {
+                if (data === null) {
+                    return
+                }
+                if (data.status === "accepted") {
+                    $("#upgrade-message").show()
+                }
+            }
+        })
+    checkBusinessStatus()
+</script>
+
+{{ end }}

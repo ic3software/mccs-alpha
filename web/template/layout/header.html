@@ -1,0 +1,76 @@
+{{ define "header" }}
+<div class="ui fixed borderless menu">
+    <div class="ui container topnav" id="navbar">
+        <a href="https://opencredit.network/" class="header item"><img src="/static/img/ocn-logo.svg" alt="OCN"></a>
+        {{if .User.ID}}
+        {{if .User.Admin}}
+        <a href="/" class="item">Dashboard</a>
+        <a href="/admin/accounts" class="item">Accounts</a>
+        <a href="/admin/transaction" class="item">Transfer</a>
+        <a href="/admin/user-tags" class="item">User Tags</a>
+        <a href="/admin/admin-tags" class="item">Admin Tags</a>
+        <a href="/admin/log" class="item">Logs</a>
+        {{ else }}
+        <a href="/" class="item">Dashboard</a>
+        <a href="/businesses/search?page=1" class="item">Find Businesses</a>
+        {{/* Only show access to Transfer and History screens for users with trading status */}}
+        <a href="/transaction" class="header-transfer-link item" style="display: none;">Transfer</a>
+        <a href="/history/search?page=1&date-from={{DaysBefore 13}}&date-to={{TimeNow}}#results" class="header-history-link item" style="display: none;">Statement</a>
+        <a href="/account" class="item">My Profile</a>
+        <a href="https://opencredit.network/faq/" class="item" target="_blank">FAQ</a>
+        {{end}}
+        {{if .User.Admin}}
+        <a href="/admin/logout" class="item">Logout</a>
+        {{ else }}
+        <a href="/logout" class="item">Logout</a>
+        {{end}}
+        {{else}}
+        <a href="/businesses/search?page=1" class="item">Find Businesses</a>
+        <a href="https://opencredit.network/faq/" class="item" target="_blank">FAQ</a>
+        <a href="/signup" class="item">Sign Up</a>
+        <a href="/login" class="item">Login</a>
+        <a href="/lost-password" class="item">Lost Password</a>
+        {{ end }}
+        <div class="right menu">
+            <div class="item">
+                <a href="javascript:void(0);" class="menu-icon" onclick="toggleMenu()">
+                    <i class="icon bars"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{/* Sidebar Menu */}}
+    <div class="ui sidebar inverted vertical menu">
+        {{if .User.ID}}
+        {{if .User.Admin}}
+        <a href="/" class="item">Dashboard</a>
+        <a href="/admin/accounts" class="item">Accounts</a>
+        <a href="/admin/transaction" class="item">Transfer</a>
+        <a href="/admin/user-tags" class="item">User Tags</a>
+        <a href="/admin/admin-tags" class="item">Admin Tags</a>
+        <a href="/admin/log" class="item">Logs</a>
+        {{ else }}
+        <a href="/" class="item">Dashboard</a>
+        <a href="/businesses/search?page=1" class="item">Find Businesses</a>
+        {{/* Only show access to Transfer and History screens for users with trading status */}}
+        <a href="/transaction" class="header-transfer-link item" style="display: none;">Transfer</a>
+        <a href="/history/search?page=1&date-from={{DaysBefore 13}}&date-to={{TimeNow}}#results" class="header-history-link item" style="display: none;">Statement</a>
+        <a href="/account" class="item">My Profile</a>
+        <a href="https://opencredit.network/faq/" class="item" target="_blank">FAQ</a>
+        {{end}}
+        {{if .User.Admin}}
+        <a href="/admin/logout" class="item">Logout</a>
+        {{ else }}
+        <a href="/logout" class="item">Logout</a>
+        {{end}}
+        {{else}}
+        <a href="/businesses/search?page=1" class="item">Find Businesses</a>
+        <a href="https://opencredit.network/faq/" class="item" target="_blank">FAQ</a>
+        <a href="/signup" class="item">Sign Up</a>
+        <a href="/login" class="item">Login</a>
+        <a href="/lost-password" class="item">Lost Password</a>
+        {{ end }}
+    </div>
+</div>
+{{ end }}

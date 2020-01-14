@@ -1,0 +1,524 @@
+{{ define "content" }}
+<h1 class="ui primary header">Search/View Accounts</h1>
+<div class="ui segment secondary">
+    <form action="/admin/accounts/search#results" method="get" class="ui form">
+        <h2 class="ui medium header">Search by Business</h2>
+        <input maxlength="255" name="page" value="1" hidden>
+        <input maxlength="255" name="filter" value="business" hidden>
+        <div class="inline fields">
+            <div class="two wide field">
+                <label>Search For:</label>
+            </div>
+            <div class="two wide field">
+                <div class="ui form">
+                <div class="grouped fields">
+                    <div class="field">
+                    <div class="ui radio checkbox">
+                        {{if eq .FormData.TagType "offers"}}
+                        <input type="radio" name="tag_type" value="offers" checked="checked">
+                        {{else}}
+                            {{/* default value */}}
+                            {{if ne .FormData.TagType "wants"}}
+                            <input type="radio" name="tag_type" value="offers" checked="checked">
+                            {{else}}
+                            <input type="radio" name="tag_type" value="offers">
+                            {{end}}
+                        {{end}}
+                        <label>Suppliers</label>
+                    </div>
+                    </div>
+                    <div class="field">
+                    <div class="ui radio checkbox">
+                        {{if eq .FormData.TagType "wants"}}
+                        <input type="radio" name="tag_type" value="wants" checked="checked">
+                        {{else}}
+                        <input type="radio" name="tag_type" value="wants">
+                        {{end}}
+                        <label>Customers</label>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="five wide field">
+                {{if .FormData.Tags}}
+                <input maxlength="100" name="tags" value="{{TagsToSearchString .FormData.Tags}}">
+                {{else}}
+                <input maxlength="100" name="tags">
+                {{end}}
+            </div>
+            <div class="three wide field">
+                <a id="search-toggle" href="#" onclick="handleClickAdvancedSearch()">Advanced Search</a>
+            </div>
+        </div>
+
+        {{/* Advanced Search */}}
+        <div id="advanced-search" style="display: none;">
+            <div class="fields">
+                <div class="three wide field">
+                    <label>Status:</label>
+                    <div class="ui selection dropdown">
+                        {{if .FormData.Status}}
+                        <input maxlength="255" type="hidden" name="status" value="{{.FormData.Status}}"> {{else}}
+                        <input maxlength="255" type="hidden" name="status" value="all"> {{end}}
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Status</div>
+                        <div class="menu">
+                            <div class="item" data-value="all">all</div>
+                            <div class="item" data-value="pending">pending</div>
+                            <div class="item" data-value="accepted">accepted</div>
+                            <div class="item" data-value="rejected">rejected</div>
+                            <div class="item" data-value="tradingPending">trading-pending</div>
+                            <div class="item" data-value="tradingAccepted">trading-accepted</div>
+                            <div class="item" data-value="tradingRejected">trading-rejected</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="six wide field">
+                    <label>Business Name:</label>
+                    <div class="ui input">
+                        {{if .FormData.BusinessName}}
+                        <input maxlength="100" name="business_name" value="{{.FormData.BusinessName}}"> {{else}}
+                        <input maxlength="100" name="business_name" value=""> {{end}}
+                    </div>
+                </div>
+            </div>
+            <div class="fields">
+                <div class="four wide field">
+                    <label>Country:</label>
+                    <div class="ui selection dropdown">
+                        {{if .FormData.LocationCountry}}
+                        <input maxlength="50" type="hidden" name="location_country" value="{{.FormData.LocationCountry}}">
+                        {{else}}
+                        <input maxlength="50" type="hidden" name="location_country" value="">
+                        {{end}}
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select one...</div>
+                        <div class="menu">
+                            <div class="item" data-value="">All</div>
+                            <div class="item" data-value="England">England</div>
+                            <div class="item" data-value="Northern Ireland">Northern Ireland</div>
+                            <div class="item" data-value="Scotland">Scotland</div>
+                            <div class="item" data-value="Wales">Wales</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide field">
+                    <label>City:</label>
+                    <div class="ui input">
+                        {{if .FormData.LocationCity}}
+                        <input maxlength="50" name="location_city" value="{{.FormData.LocationCity}}"> {{else}}
+                        <input maxlength="50" name="location_city" value=""> {{end}}
+                    </div>
+                </div>
+                <div class="four wide field">
+                    <label>Category:</label>
+                    <div class="ui selection dropdown">
+                        {{if .FormData.Category}}
+                        <input maxlength="255" type="hidden" name="category" value="{{.FormData.Category}}">
+                        {{else}}
+                        <input maxlength="255" type="hidden" name="category" value="">
+                        {{end}}
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Category</div>
+                        <div class="menu">
+                            <div class="item" data-value="">All</div>
+                            {{range $tag := (SortAdminTags .AdminTags)}}
+                            <div class="item" data-value="{{$tag.Name}}">{{$tag.Name}}</div>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fields">
+            <div class="three wide field">
+                <label>Tag Added After:</label>
+                <div class="ui calendar" id="created_on_or_after">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input maxlength="255" type="text" name="created_on_or_after" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+        <div style="margin: 1em;"></div>
+        <button class="ui primary button">
+            Search Businesses
+        </button>
+    </form>
+    <div style="margin: 3em;"></div>
+    <form action="/admin/accounts/search#results" method="get" class="ui form">
+        <h2 class="ui medium header">Search by User</h2>
+        <input maxlength="255" name="page" value="1" hidden>
+        <input maxlength="255" name="filter" value="user" hidden>
+        <div class="fields">
+            <div class="four wide field">
+                <label>Last Name:</label>
+                <div class="ui input">
+                    {{if .FormData.LastName}}
+                    <input maxlength="100" name="last_name" value="{{.FormData.LastName}}"> {{else}}
+                    <input maxlength="100" name="last_name" value=""> {{end}}
+                </div>
+            </div>
+            <div class="four wide field">
+                <label>Email:</label>
+                <div class="ui input">
+                    {{if .FormData.Email}}
+                    <input maxlength="100" name="email" value="{{.FormData.Email}}"> {{else}}
+                    <input maxlength="100" name="email" value=""> {{end}}
+                </div>
+            </div>
+        </div>
+        <div style="margin: 1em;"></div>
+        <button class="ui primary button">
+            Search Users
+        </button>
+    </form>
+</div>
+
+{{if .Result}}
+<h2 id="results" class="ui medium header anchored">Total Results: {{.Result.NumberOfResults}}</h2>
+<table class="ui celled padded table">
+    <thead>
+        <th>Business Name</th>
+        <th>Balance</th>
+        <th>Status</th>
+        <th>Country</th>
+        <th>City</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Offers</th>
+        <th>Wants</th>
+        <th>Admin Tags</th>
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        {{ range $index, $account := .Result.Accounts }}
+        <tr id="{{IDToString $account.Business.ID}}">
+            <td>
+                <a href="/admin/businesses/{{IDToString $account.Business.ID}}">{{$account.Business.BusinessName}}</a>
+            </td>
+            <td>
+                <a href="/admin/history/{{IDToString $account.Business.ID}}?page=1&date-from={{DaysBefore 13}}&date-to={{TimeNow}}#results">{{$account.Balance}}</a>
+            </td>
+            <td>
+                {{$account.Business.Status}}
+            </td>
+            <td>
+                {{$account.Business.LocationCountry}}
+            </td>
+            <td>
+                {{$account.Business.LocationCity}}
+            </td>
+            <td>
+                {{if $account.User.LastName}}
+                    <a href="/admin/users/{{IDToString $account.User.ID}}">
+                        {{$account.User.LastName}}
+                    </a>
+                {{else}}
+                    <a href="/admin/users/{{IDToString $account.User.ID}}">
+                        ( )
+                    </a>
+                {{end}}
+            </td>
+            <td>
+                {{$account.User.Email}}
+            </td>
+            <td style="width:250px">
+                {{ range $index, $offer := $account.Business.Offers }}
+                <a href="/admin/accounts/search?page=1&filter=business&tag_type=offers&tags={{$offer.Name}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                    <div class="ui small label primary" style="margin-top:5px;margin-bottom:5px;">
+                        {{$offer.Name}}
+                    </div>
+                </a>
+                {{ end }}
+            </td>
+            <td style="width:250px">
+                {{ range $index, $want := $account.Business.Wants }}
+                <a href="/admin/accounts/search?page=1&filter=business&tag_type=wants&tags={{$want.Name}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                    <div class="ui small label orange" style="margin-top:5px;margin-bottom:5px;">
+                        {{$want.Name}}
+                    </div>
+                </a>
+                {{ end }}
+            </td>
+            <td style="width:600px">
+                {{ range $index, $tag := $account.Business.AdminTags }}
+                <a href="/admin/accounts/search?page=1&filter=business&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$tag}}#results">
+                    <div class="ui small label" style="margin-top:5px;margin-bottom:5px;">
+                        {{$tag}}
+                    </div>
+                </a>
+                {{ end }}
+            </td>
+            <td>
+                <button class="ui icon negative button action-delete" business-id="{{IDToString $account.Business.ID}}">
+                    <i class="trash alternate icon"></i>
+                </button>
+            </td>
+        </tr>
+        {{ end }}
+    </tbody>
+    <tfoot>
+        {{if eq .FormData.Filter "business"}}
+        <tr>
+            <th colspan="11">
+                <div class="ui right floated pagination menu">
+                    {{/* < */}}
+                    {{if gt .FormData.Page 1}}
+                    <a class="icon item left-chevron" href="/admin/accounts/search?page={{Minus .FormData.Page 1}}&filter=business&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&status={{.FormData.Status}}&business_name={{.FormData.BusinessName}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&location_city={{.FormData.LocationCity}}&location_country={{.FormData.LocationCountry}}&category={{.FormData.Category}}#results">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    {{else}}
+                    <a class="icon item disabled left-chevron">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    {{end}}
+
+                    {{/* FirstPage */}}
+                    <a class="{{if eq .FormData.Page 1}}active{{end}} item" href="/admin/accounts/search?page=1&filter=business&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&status={{.FormData.Status}}&business_name={{.FormData.BusinessName}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&location_city={{.FormData.LocationCity}}&location_country={{.FormData.LocationCountry}}&category={{.FormData.Category}}#results">
+                        1
+                    </a>
+
+                    {{/* ... */}}
+                    {{if gt .Result.TotalPages 9}}
+                        {{if gt .FormData.Page 4 }}
+                            <a class="icon item disabled">
+                                ...
+                            </a>
+                        {{end}}
+                    {{end}}
+
+                    {{/* if 1 < page < 10 */}}
+                    {{if and (gt .Result.TotalPages 1) (lt .Result.TotalPages 10)}}
+                        {{range $_, $v := N 2 .Result.TotalPages}}
+                        <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=business&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                            {{$v}}
+                        </a>
+                        {{end}}
+                    {{end}}
+                    {{/* if page => 10 */}}
+                    {{if ge .Result.TotalPages 10}}
+                        {{if lt (Add .FormData.Page 4) .Result.TotalPages}}
+                            {{if ge .FormData.Page 4}}
+                                {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=business&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{else}}
+                                {{range $_, $v := N 2 5}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=business&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{end}}
+                        {{else}}
+                            {{if le (Add .FormData.Page 3) .Result.TotalPages}}
+                                {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=business&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{else}}
+                                {{range $_, $v := N (Minus .Result.TotalPages 4) (Minus .Result.TotalPages 1)}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=business&tag_type={{$.FormData.TagType}}&tags={{TagsToSearchString $.FormData.Tags}}&status={{$.FormData.Status}}&business_name={{$.FormData.BusinessName}}&created_on_or_after={{$.FormData.CreatedOnOrAfter}}&location_city={{$.FormData.LocationCity}}&location_country={{$.FormData.LocationCountry}}&category={{$.FormData.Category}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{end}}
+                        {{end}}
+                    {{end}}
+
+                    {{/* ... */}}
+                    {{if gt .Result.TotalPages 9}}
+                        {{if lt (Add .FormData.Page 3) .Result.TotalPages}}
+                            <a class="icon item disabled">
+                                ...
+                            </a>
+                        {{end}}
+                    {{end}}
+
+                    {{/* lastPage */}}
+                    {{if gt .Result.TotalPages 9}}
+                        <a class="{{if eq .FormData.Page .Result.TotalPages}}active{{end}} item" href="/admin/accounts/search?page={{.Result.TotalPages}}&filter=business&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&status={{.FormData.Status}}&business_name={{.FormData.BusinessName}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&location_city={{.FormData.LocationCity}}&location_country={{.FormData.LocationCountry}}&category={{.FormData.Category}}#results">
+                            {{.Result.TotalPages}}
+                        </a>
+                    {{end}}
+
+                    {{/* > */}}
+                    {{if lt .FormData.Page .Result.TotalPages}}
+                    <a class="icon item right-chevron" href="/admin/accounts/search?page={{Add .FormData.Page 1}}&filter=business&tag_type={{.FormData.TagType}}&tags={{TagsToSearchString .FormData.Tags}}&status={{.FormData.Status}}&business_name={{.FormData.BusinessName}}&created_on_or_after={{.FormData.CreatedOnOrAfter}}&location_city={{.FormData.LocationCity}}&location_country={{.FormData.LocationCountry}}&category={{.FormData.Category}}#results">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    {{else}}
+                    <a class="icon disabled item right-chevron">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    {{end}}
+                </div>
+            </th>
+        </tr>
+        {{else}}
+        <tr>
+            <th colspan="11">
+                <div class="ui right floated pagination menu">
+                    {{/* < */}}
+                    {{if gt .FormData.Page 1}}
+                    <a class="icon item left-chevron" href="/admin/accounts/search?page={{Minus .FormData.Page 1}}&filter=user&last_name={{.FormData.LastName}}&email={{.FormData.Email}}#results">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    {{else}}
+                    <a class="icon item disabled left-chevron">
+                        <i class="left chevron icon"></i>
+                    </a>
+                    {{end}}
+
+                    {{/* FirstPage */}}
+                    <a class="{{if eq .FormData.Page 1}}active{{end}} item" href="/admin/accounts/search?page=1&filter=user&last_name={{.FormData.LastName}}&email={{.FormData.Email}}#results">
+                        1
+                    </a>
+
+                    {{/* ... */}}
+                    {{if gt .Result.TotalPages 9}}
+                        {{if gt .FormData.Page 4 }}
+                            <a class="icon item disabled">
+                                ...
+                            </a>
+                        {{end}}
+                    {{end}}
+
+                    {{/* if 1 < page < 10 */}}
+                    {{if and (gt .Result.TotalPages 1) (lt .Result.TotalPages 10)}}
+                        {{range $_, $v := N 2 .Result.TotalPages}}
+                        <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=user&last_name={{$.FormData.LastName}}&email={{$.FormData.Email}}#results">
+                            {{$v}}
+                        </a>
+                        {{end}}
+                    {{end}}
+                    {{/* if page => 10 */}}
+                    {{if ge .Result.TotalPages 10}}
+                        {{if lt (Add .FormData.Page 4) .Result.TotalPages}}
+                            {{if ge .FormData.Page 4}}
+                                {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=user&last_name={{$.FormData.LastName}}&email={{$.FormData.Email}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{else}}
+                                {{range $_, $v := N 2 5}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=user&last_name={{$.FormData.LastName}}&email={{$.FormData.Email}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{end}}
+                        {{else}}
+                            {{if le (Add .FormData.Page 3) .Result.TotalPages}}
+                                {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=user&last_name={{$.FormData.LastName}}&email={{$.FormData.Email}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{else}}
+                                {{range $_, $v := N (Minus .Result.TotalPages 4) (Minus .Result.TotalPages 1)}}
+                                <a class="{{if eq $v $.FormData.Page}}active{{end}} item" href="/admin/accounts/search?page={{$v}}&filter=user&last_name={{$.FormData.LastName}}&email={{$.FormData.Email}}#results">
+                                    {{$v}}
+                                </a>
+                                {{end}}
+                            {{end}}
+                        {{end}}
+                    {{end}}
+
+                    {{/* ... */}}
+                    {{if gt .Result.TotalPages 9}}
+                        {{if lt (Add .FormData.Page 3) .Result.TotalPages}}
+                            <a class="icon item disabled">
+                                ...
+                            </a>
+                        {{end}}
+                    {{end}}
+
+                    {{/* lastPage */}}
+                    {{if gt .Result.TotalPages 9}}
+                        <a class="{{if eq .FormData.Page .Result.TotalPages}}active{{end}} item" href="/admin/accounts/search?page={{.Result.TotalPages}}&filter=user&last_name={{.FormData.LastName}}&email={{.FormData.Email}}#results">
+                            {{.Result.TotalPages}}
+                        </a>
+                    {{end}}
+
+                    {{/* > */}}
+                    {{if lt .FormData.Page .Result.TotalPages}}
+                    <a class="icon item right-chevron" href="/admin/accounts/search?page={{Add .FormData.Page 1}}&filter=user&last_name={{.FormData.LastName}}&email={{.FormData.Email}}#results">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    {{else}}
+                    <a class="icon disabled item right-chevron">
+                        <i class="right chevron icon"></i>
+                    </a>
+                    {{end}}
+                </div>
+            </th>
+        </tr>
+        {{end}}
+    </tfoot>
+</table>
+
+<div class="ui basic modal">
+  <input maxlength="255" type="hidden" id="selectedId">
+  <div class="ui icon header">
+    <i class="trash alternate icon"></i>
+    <br />
+    Delete Record
+  </div>
+  <div class="content" style="text-align:center">
+    <p>Are you sure you want to delete this record?</p>
+  </div>
+  <div class="actions">
+    <div class="ui red basic cancel inverted button">
+      <i class="remove icon"></i>
+      No
+    </div>
+    <div id="confirm-delete" class="ui green ok inverted button">
+      <i class="checkmark icon"></i>
+      Yes
+    </div>
+  </div>
+</div>
+{{ end }}
+
+<script>
+    // Semantic Calendar
+    {{if .FormData.CreatedOnOrAfter}}
+        $('#created_on_or_after').calendar({
+            initialDate: new Date("{{.FormData.CreatedOnOrAfter}}"),
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{else}}
+        $('#created_on_or_after').calendar({
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{end}}
+</script>
+
+{{ end }}

@@ -1,0 +1,370 @@
+{{ define "content" }}
+<div>
+    <h1 class="ui primary header">Transfer History</h1>
+    <form action="/admin/history/{{.BusinessID}}#results" method="get" class="ui form">
+        <input maxlength="255" name="page" value="1" hidden>
+        <div class="fields">
+            <div class="field">
+                <label>From:</label>
+                <div class="ui calendar" id="rangestart">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input maxlength="255" type="text" placeholder="Start" name="date-from" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label>To:</label>
+                <div class="ui calendar" id="rangeend">
+                    <div class="ui input left icon">
+                        <i class="calendar icon"></i>
+                        <input maxlength="255" type="text" placeholder="End" name="date-to" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" value="Search" class="ui primary button">
+            Show History
+        </button>
+    </form>
+
+    <div class="ui segment">
+        <h2>Pending transactions</h2>
+        <div id="pending-transactions"></div>
+    </div>
+
+    <div class="ui segment">
+        <h4>Account {{.Email}} has balance: {{.Balance}} Credits</h4>
+        <table class="ui padded striped very basic table">
+            <tbody>
+                <tr>
+                    <th class="one wide">Transfer</th>
+                    <th class="one wide">ID</th>
+                    <th class="one wide">Amount</th>
+                    <th class="four wide">Description</th>
+                    <th class="three wide">From/To</th>
+                    <th class="three wide">Date</th>
+                </tr>
+                {{ range $_, $t := .Transactions }}
+                <tr>
+                    {{if lt $t.Amount 0.0}}
+                        <td style="border-left: 4px #db2828 solid; text-align: center;"><b style="color:#db2828"><i class="arrow left icon"></i> Out</b></td>
+                    {{else}}
+                        <td style="border-left: 4px #21BA45 solid;text-align: center;"><b style="color:#21BA45"><i class="arrow right icon"></i> In</b></td>
+                    {{end}}
+                    <td style="text-align:center" data-tooltip="{{$t.TransactionID}}" data-position="top center">
+                        {{FormatTransactionID $t.TransactionID}}
+                    </td>
+                    <td>{{$t.Amount}}</td>
+                    <td style="max-width: 225px;word-wrap: break-word;">{{$t.Description}}</td>
+                    {{if lt $t.Amount 0.0}}
+                        <td>{{$t.ToEmail}} ({{$t.ToBusinessName}})</td>
+                    {{else}}
+                        <td>{{$t.FromEmail}} ({{$t.FromBusinessName}})</td>
+                    {{end}}
+                    <td>{{FormatTime $t.CreatedAt}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+            {{if .Transactions}}
+            <tfoot>
+                <tr>
+                    <th colspan="6">
+                        <div class="ui right floated pagination menu">
+                            {{/* < */}}
+                            {{if gt .FormData.Page 1}}
+                            <a class="icon item left-chevron"
+                                href="/admin/history/{{.BusinessID}}?page={{Minus .FormData.Page 1}}&date-from={{.FormData.DateFrom}}&date-to={{.FormData.DateTo}}#results">
+                                <i class="left chevron icon"></i>
+                            </a>
+                            {{else}}
+                            <a class="icon item disabled left-chevron">
+                                <i class="left chevron icon"></i>
+                            </a>
+                            {{end}}
+
+                            {{/* FirstPage */}}
+                            <a class="{{if eq .FormData.Page 1}}active{{end}} item"
+                                href="/admin/history/{{.BusinessID}}?page=1&date-from={{.FormData.DateFrom}}&date-to={{.FormData.DateTo}}#results">
+                                1
+                            </a>
+
+                            {{/* ... */}}
+                            {{if gt .TotalPages 9}}
+                            {{if gt .FormData.Page 4 }}
+                            <a class="icon item disabled">
+                                ...
+                            </a>
+                            {{end}}
+                            {{end}}
+
+                            {{/* if 1 < page < 10 */}}
+                            {{if and (gt .TotalPages 1) (lt .TotalPages 10)}}
+                            {{range $_, $v := N 2 .TotalPages}}
+                            <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                                href="/admin/history/{{$.BusinessID}}?page={{$v}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                                {{$v}}
+                            </a>
+                            {{end}}
+                            {{end}}
+
+                            {{/* if page => 10 */}}
+                            {{if ge .TotalPages 10}}
+                                {{if lt (Add .FormData.Page 4) .TotalPages}}
+                                    {{if ge .FormData.Page 4}}
+                                        {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                                            <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                                                href="/admin/history/{{$.BusinessID}}?page={{$v}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                                            {{$v}}
+                                            </a>
+                                        {{end}}
+                                    {{else}}
+                                        {{range $_, $v := N 2 5}}
+                                            <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                                                href="/admin/history/{{$.BusinessID}}?page={{$v}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                                            {{$v}}
+                                            </a>
+                                        {{end}}
+                                    {{end}}
+                                {{else}}
+                                    {{if le (Add .FormData.Page 3) .TotalPages}}
+                                        {{range $_, $v := N (Minus .FormData.Page 2) (Add .FormData.Page 2)}}
+                                            <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                                                href="/admin/history/{{$.BusinessID}}?page={{$v}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                                                {{$v}}
+                                            </a>
+                                        {{end}}
+                                    {{else}}
+                                        {{range $_, $v := N (Minus .TotalPages 4) (Minus .TotalPages 1)}}
+                                            <a class="{{if eq $v $.FormData.Page}}active{{end}} item"
+                                                href="/admin/history/{{$.BusinessID}}?page={{$v}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                                                {{$v}}
+                                            </a>
+                                        {{end}}
+                                    {{end}}
+                                {{end}}
+                            {{end}}
+
+                            {{/* ... */}}
+                            {{if gt .TotalPages 9}}
+                            {{if lt (Add .FormData.Page 3) .TotalPages}}
+                            <a class="icon item disabled">
+                                ...
+                            </a>
+                            {{end}}
+                            {{end}}
+
+                            {{/* lastPage */}}
+                            {{if gt .TotalPages 9}}
+                            <a class="{{if eq .FormData.Page .TotalPages}}active{{end}} item"
+                                href="/admin/history/{{$.BusinessID}}?page={{.TotalPages}}&date-from={{$.FormData.DateFrom}}&date-to={{$.FormData.DateTo}}#results">
+                                {{.TotalPages}}
+                            </a>
+                            {{end}}
+
+                            {{/* > */}}
+                            {{if lt .FormData.Page .TotalPages}}
+                            <a class="icon item right-chevron"
+                                href="/admin/history/{{.BusinessID}}?page={{Add .FormData.Page 1}}&date-from={{.FormData.DateFrom}}&date-to={{.FormData.DateTo}}#results">
+                                <i class="right chevron icon"></i>
+                            </a>
+                            {{else}}
+                            <a class="icon disabled item right-chevron">
+                                <i class="right chevron icon"></i>
+                            </a>
+                            {{end}}
+                        </div>
+                    </th>
+                </tr>
+            </tfoot>
+            {{end}}
+        </table>
+    </div>
+</div>
+
+<input maxlength="255" type="hidden" id="selectedId">
+
+<div class="ui basic cancel modal">
+    <div class="ui icon header">
+        <i class="trash alternate icon"></i>
+        <br />
+        Cancel Transaction
+    </div>
+    <div class="content" style="text-align:center">
+        <p>Are you sure you want to cancel this transaction?</p>
+    </div>
+    <div class="actions">
+        <div class="ui red basic cancel inverted button">
+            <i class="remove icon"></i>
+            No
+        </div>
+        <div id="confirm-cancel-transaction" class="ui green ok inverted button">
+            <i class="checkmark icon"></i>
+            Yes
+        </div>
+    </div>
+</div>
+
+<script>
+    // Semantic Calendar
+    {{if .FormData.DateFrom}}
+        $("#rangestart").calendar({
+            initialDate: new Date("{{.FormData.DateFrom}}"),
+            endCalendar: $("#rangeend"),
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return "";
+                var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{else}}
+        $("#rangestart").calendar({
+            endCalendar: $("#rangeend"),
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return "";
+                var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{end}}
+
+    {{if .FormData.DateTo}}
+        $("#rangeend").calendar({
+            initialDate: new Date("{{.FormData.DateTo}}"),
+            startCalendar: $("#rangestart"),
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return "";
+                var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{else}}
+        $("#rangeend").calendar({
+            startCalendar: $("#rangestart"),
+            type: "date",
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return "";
+                var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                var day = date.getDate();
+                var month = months[date.getMonth()];
+                var year = date.getFullYear();
+                return `${day} ${month} ${year}`;
+                }
+            }
+        });
+    {{end}}
+
+  // ************  Get Pending Transactions ****************
+    const getPendingTransactions = () => $.ajax({
+        url: "/admin/api/pendingTransactions?business_id={{.BusinessID}}",
+        contentType: "application/json",
+        dataType: "json",
+        success: data => {
+            if (data === null || data.Transactions === null || data.Transactions.length === 0) {
+                $("#pending-transactions").hide(300);
+                $("#transaction-count").hide(300);
+                return;
+            }
+            html = `
+                <table class="ui padded celled striped very basic table">
+                <thead>
+                    <tr>
+                        <th class="one wide">Transfer</th>
+                        <th class="one wide">ID</th>
+                        <th class="one wide">Amount</th>
+                        <th class="four wide">Description</th>
+                        <th class="three wide">From/To</th>
+                        <th class="three wide">Proposed On</th>
+                        <th class="four wide"></th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            data.Transactions.forEach(t => html += `
+                <tr class="transaction-item" data-transaction=${t.ID}>
+                    ${
+                        t.IsInitiator ?
+                            t.InitiatedBy === t.FromID ? "<td style='border-left: 4px #db2828 solid;text-align: center;'><b style='color:#db2828'><i class='arrow left icon'></i> Out</b></td>" : "<td style='border-left: 4px #21BA45 solid;text-align: center;'><b style='color:#21BA45'><i class='arrow right icon'></i> In</b></td>" :
+                            t.InitiatedBy === t.FromID ? "<td style='border-left: 4px #21BA45 solid;text-align: center;'><b style='color:#21BA45'><i class='arrow right icon'></i> In</b></td>" : "<td style='border-left: 4px #db2828 solid;text-align: center;'><b style='color:#db2828'><i class='arrow left icon'></i> Out</b></td>"
+                    }
+                    <td style="text-align:center" data-tooltip="${t.TransactionID}" data-position="top center">
+                        ${t.TransactionID.substring(0, 8)}
+                    </td>
+                    <td style="text-align:center">
+                            ${t.Amount}
+                        </td>
+                    <td>${t.Description}</td>
+                    <td>${
+                        t.IsInitiator ?
+                            t.InitiatedBy === t.FromID ? `${t.ToEmail} (${t.ToBusinessName})` : `${t.FromEmail} (${t.FromBusinessName})` :
+                            t.InitiatedBy === t.FromID ? `${t.FromEmail} (${t.FromBusinessName})` : `${t.ToEmail} (${t.ToBusinessName})`
+                    }</td>
+                    <td>${formatTime(t.CreatedAt)}</td>
+                    <td style="text-align: center"><button onclick="cancelTransaction(${t.ID})" class='ui negative basic button '>Cancel</button></td>
+                </tr>
+            `);
+            html += `</tbody></table></br>`
+            $("#pending-transactions").html('');
+            $("#pending-transactions").append(html);
+        },
+        error: () => {
+            showErrorMessage("Geting pending transactions Failed, Please Try Again Later.")
+        }
+    })
+
+    getPendingTransactions()
+    // ****************************
+
+
+    // ************  Cancel Transaction Button ****************
+    const cancel = transactionID => {
+            $.ajax({
+                method: "POST",
+                url: "/admin/api/cancelTransaction",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    id: transactionID
+                }),
+                success: data => {
+                    if (data !== null && data.error) {
+                        showErrorMessage(data.error)
+                    }
+                    getPendingTransactions()
+                },
+                error: () => {
+                    showErrorMessage("Cancel Failed, Please Try Again Later.")
+                }
+            })
+        }
+
+    const cancelTransaction = transactionID => {
+        $("#selectedId").val(transactionID);
+        $(".ui.basic.cancel.modal").modal("show");
+    };
+
+    $("#confirm-cancel-transaction").click(function () {
+        const id = $("#selectedId").val();
+        cancel(Number(id));
+    });
+    // ****************************
+</script>
+{{ end }}

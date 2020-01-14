@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Cafe/Bar",
+        "createdAt": "2019-04-06T10:52:52Z",
+        "updatedAt": "2019-04-06T10:52:52Z"
+    },
+    {
+        "name": "Transport",
+        "createdAt": "2019-04-06T10:52:52Z",
+        "updatedAt": "2019-04-06T10:52:52Z"
+    },
+    {
+        "name": "Restaurant",
+        "createdAt": "2019-04-06T10:52:52Z",
+        "updatedAt": "2019-04-06T10:52:52Z"
+    },
+    {
+        "name": "Manufacturing",
+        "createdAt": "2019-04-06T10:52:52Z",
+        "updatedAt": "2019-04-06T10:52:52Z"
+    },
+    {
+        "name": "Professional Services",
+        "createdAt": "2019-04-06T10:52:52Z",
+        "updatedAt": "2019-04-06T10:52:52Z"
+    },
+    {
+        "name": "Agriculture",
+        "createdAt": "2019-04-06T10:52:52Z",
+        "updatedAt": "2019-04-06T10:52:52Z"
+    }
+]

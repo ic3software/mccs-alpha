@@ -1,0 +1,111 @@
+{{ define "content" }}
+<h1 class="ui primary header">Create your FREE directory listing</h1>
+<form action="/signup" method="post" class="ui form">
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">General Information</h2>
+        <p><i>Please provide your business' trading name.</i></p>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Business Name:</label>
+                {{if .Business.BusinessName}}
+                <input maxlength="100" type="text" name="business_name" value="{{.Business.BusinessName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="business_name" value="">
+                {{end}}
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">What Your Business Provides &amp; Needs</h2>
+        <p><i>Enter up to 10 descriptive tags in each input box (e.g., "Restaurant", “Food", “Noodles", etc.)
+                Start typing to see available tags. Whenever possible select existing tags to get more matches.
+                <!-- <br>
+                <a href="https://opencredit.network/tagging-offers-wants" target="#blank">Learn more about creating great tags for your business</a> -->
+        </i></p>
+        <div class="field required">
+            <label>Products/Services Offered:</label>
+            <div class="ui fluid multiple search selection offers dropdown">
+                {{if .Business.Offers}}
+                <input maxlength="500" name="offers" type="hidden" value="{{TagsToString .Business.Offers}}">
+                {{else}}
+                <input maxlength="500" name="offers" type="hidden">
+                {{end}}
+                <div class="default text">Enter tags for what you can provide</div>
+            </div>
+        </div>
+        <div class="field required">
+            <label>Products/Services Wanted:</label>
+            <div class="ui fluid multiple search selection wants dropdown">
+                {{if .Business.Wants}}
+                <input maxlength="500" name="wants" type="hidden" value="{{TagsToString .Business.Wants}}">
+                {{else}}
+                <input maxlength="500" name="wants" type="hidden">
+                {{end}}
+                <div class="default text">Enter tags of what you want</div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Your Details</h2>
+        <p><i>Please provide a general email address, if applicable, so that your colleagues may respond to us in your absence.</i></p>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Email:</label>
+                {{if .User.Email}}
+                <input maxlength="100" type="email" name="email" value="{{.User.Email}}">
+                {{else}}
+                <input maxlength="100" type="email" name="email" value="">
+                {{end}}
+            </div>
+            <div class="five wide field required">
+                <label>Reconfirm Email:</label>
+                {{if .User.Email}}
+                <input maxlength="100" type="email" name="confirm_email" value="{{.ConfirmEmail}}">
+                {{else}}
+                <input maxlength="100" type="email" name="confirm_email" value="">
+                {{end}}
+            </div>
+        </div>
+        <h2 class="ui medium header">Setup Password</h2>
+        <p><i>Use at least one number and one special character.</i></p>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Password:</label>
+                {{if .User.Password}}
+                <input maxlength="100" type="password" name="new_password" value="{{.User.Password}}">
+                {{else}}
+                <input maxlength="100" type="password" name="new_password" value="">
+                {{end}}
+            </div>
+            <div class="five wide field required">
+                <label>Reconfirm Password:</label>
+                {{if .ConfirmPassword}}
+                <input maxlength="100" type="password" name="confirm_password" value="{{.ConfirmPassword}}">
+                {{else}}
+                <input maxlength="100" type="password" name="confirm_password" value="">
+                {{end}}
+            </div>
+        </div>
+        <br>
+        <div class="field">
+            <div class="ui checkbox">
+                <input type="checkbox" name="terms">
+                <label>I agree to have my business listed in the directory and to follow the Open Credit Network code of conduct. <span class="ui text red">*</span><br><br>
+                I agree to:
+                <ul>
+                    <li>Keep my Offers and Wants up to date to enable effective trading</li>
+                    <li>Only use the Directory to advertise legal and appropriate products and services</li>
+                    <li>Only contact other Directory Members with legitimate trading offers</li>
+                </ul>
+                </label>
+            </div>
+        </div>
+        <div class="g-recaptcha" style="margin: 2em 0;" data-sitekey={{.RecaptchaSitekey}}></div>
+        </p>Your directory entry will be reviewed by the OCN Team and we will get in touch to let you know when it goes live. Your personal details will not be made public or shared with any third parties and you can cancel your listing at any time.</p>
+        <button class="ui primary button">
+            Apply Now
+        </button>
+        <a href="/" class="ui button">Cancel</a>
+    </div>
+</form>
+{{ end }}

@@ -1,0 +1,20 @@
+{{ define "messages" }}
+{{if .Success}}
+<div class="server-success ui success message">
+   <div class="header">
+      {{.Success}}
+   </div>
+</div>
+{{end}}
+{{if .Info}}
+<div class="server-success ui info message">
+   <div class="header">
+      {{.Info}}
+   </div>
+</div>
+{{end}}
+{{/* This is for AJAX */}}
+<div class="ajax-success ui success message hidden">
+   <div class="header"></div>
+</div>
+{{end}}

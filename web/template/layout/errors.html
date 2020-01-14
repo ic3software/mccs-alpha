@@ -1,0 +1,18 @@
+{{ define "errors" }}
+{{if .}}
+<div class="server-error ui error message">
+  <div class="header">
+    There were some errors with your submission
+  </div>
+  <ul class="list">
+    {{range .}}
+      <li>{{ . }}</li>
+    {{end}}
+  </ul>
+</div>
+{{end}}
+{{/* This is for AJAX */}}
+<div class="ajax-error ui error message hidden">
+   <div class="header"></div>
+</div>
+{{end}}

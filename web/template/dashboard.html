@@ -1,0 +1,430 @@
+{{ define "content" }}
+{{if eq .Business.Status "pending"}}
+<div class="ui yellow message">
+    <div class="header">Thank you for requesting to be listed in our directory.</div>
+    <p>We will review your application within the next business day, and if everything looks good your business will be
+    added to the directory.</p>
+</div>
+{{else if eq .Business.Status "rejected"}}
+<div class="ui negative message">
+        <div class="header">Your application to be listed in the directory has not been accepted.</div>
+    <p>Please contact us by email to find out why: hello@opencredit.network</p>
+</div>
+{{else if eq .Business.Status "tradingPending"}}
+    <div class="ui yellow message">
+        <div class="header">Thank you for applying to become a Trading Member.</div>
+        <p>We will review your application within the next business day, and if everything looks good your business will become a Trading Member of the Open Credit Network.</p>
+    </div>
+{{else if eq .Business.Status "tradingRejected"}}
+    <div class="ui negative message">
+        <div class="header">Your application to become a Trading Member has not been accepted.</div>
+        <p>Please contact us by email to find out why: hello@opencredit.network</p>
+    </div>
+{{else if eq .Business.Status "accepted"}}
+    <div class="ui success message">
+        <h4>Upgrade to a full Trading Member</h4>
+        <p>Unlock the full potential of the Open Credit Network by applying to become a Trading Member.</p>
+        <p>Trading via mutual credit is FREE during our alpha release and, if your business meets the application criteria, you will be awarded an interest free line of credit allowing you to trade with other businesses straight away. <a href="https://opencredit.network/become-a-trading-member/" target="_blank">Find out more</a> and <a href="/member-signup">apply now</a>.</p>
+    </div>
+{{end}}
+<h1 class="ui primary header">Dashboard</h1>
+<div class="ui segment">
+    <div class="ui grid">
+        <div class="ten wide tablet ten wide computer column">
+            {{if ShouldDisplayTime .User.LastLoginDate}}
+                <h2 style="margin-bottom: 0px;">Welcome back, {{.Business.BusinessName}}</h2>
+            {{ else }}
+                <h2>Welcome to the Open Credit Network, {{.Business.BusinessName}}</h2>
+            {{ end }}
+        </div>
+        {{if eq .Business.Status "tradingAccepted"}}
+            <div class="six wide tablet six wide computer column right aligned">
+                <img style="height: 40px;" src="/static/img/trading-member.svg" alt="trading-member">
+            </div>
+            <div class="sixteen wide tablet sixteen wide computer column right aligned">
+                    <h2>Your Balance: <span id="account-balance">{{.Balance}}</span> Credits</h2>
+            </div>
+        {{end}}
+    </div>
+    <div class="ui divider"></div>
+    <div class="ui top attached tabular menu">
+    <a class="active item" data-tab="first">Potential Trades</a>
+    {{if eq .Business.Status "tradingAccepted"}}
+        <a class="item" data-tab="second">Transactions <span id="transaction-count"></span></a>
+    {{end}}
+    </div>
+    <div class="ui bottom attached active tab segment" data-tab="first">
+
+    <div class="ui toggle checkbox">
+        {{if .User.ShowRecentMatchedTags}}
+        <input maxlength="255" id="show-recent-matched-tags" type="checkbox" checked>
+        {{else}}
+        <input maxlength="255" id="show-recent-matched-tags" type="checkbox">
+        {{end}}
+        <label>Only show new matches since previous login</label>
+    </div>
+
+    <h3>Potential Trades for You</h3>
+    <p>Click the colored tags to see businesses with Offers and Wants which match yours</p>
+
+    {{if or .MatchedOffers .MatchedWants}}
+    <div class="ui two column stackable grid">
+        {{if .MatchedOffers}}
+        <div class="column">
+            <div class="ui fluid card">
+                <div class="content">
+                    <p class="header">New Leads</p>
+                    <p>Another member is looking for:</p>
+                    <div class="description">
+                        {{ range $myWant, $matchedOffers := .MatchedOffers }}
+                        {{if $.User.ShowRecentMatchedTags}}
+                        <a
+                            href="/businesses/search?page=1&created_on_or_after={{FormatTime $.User.LastLoginDate}}&tag_type=wants&tags={{$myWant}}#results">
+                            <div class="ui small label primary" style="margin-top:5px;margin-bottom:5px;">
+                                {{$myWant}}
+                            </div>
+                        </a>
+                        {{else}}
+                        <a href="/businesses/search?page=1&tag_type=wants&tags={{$myWant}}#results">
+                            <div class="ui small label primary" style="margin-top:5px;margin-bottom:5px;">
+                                {{$myWant}}
+                            </div>
+                        </a>
+                        {{end}}
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+        {{if .MatchedWants}}
+        <div class="column">
+            <div class="ui fluid card">
+                <div class="content">
+                    <p class="header">New Suppliers</p>
+                    <p>Another member is offering:</p>
+                    <div class="description">
+                        {{ range $myOffer, $matchedWants := .MatchedWants }}
+                        {{if $.User.ShowRecentMatchedTags}}
+                        <a
+                            href="/businesses/search?page=1&created_on_or_after={{FormatTime $.User.LastLoginDate}}&tag_type=offers&tags={{$myOffer}}#results">
+                            <div class="ui small label orange" style="margin-top:5px;margin-bottom:5px;">
+                                {{$myOffer}}
+                            </div>
+                        </a>
+                        {{else}}
+                        <a href="/businesses/search?page=1&tag_type=offers&tags={{$myOffer}}#results">
+                            <div class="ui small label orange" style="margin-top:5px;margin-bottom:5px;">
+                                {{$myOffer}}
+                            </div>
+                        </a>
+                        {{end}}
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+    </div>
+    {{/* Transaction Tab */}}
+    <div class="ui bottom attached tab segment" data-tab="second">
+        <div id="pending-transactions"></div>
+        <div id="transaction-history"></div>
+    </div>
+</div>
+
+<input maxlength="255" type="hidden" id="selectedId">
+
+<div class="ui basic cancel modal">
+    <div class="ui icon header">
+        <i class="trash alternate icon"></i>
+        <br />
+        Cancel Transaction
+    </div>
+    <div class="content">
+        <p style="text-align:center">Are you sure you want to cancel this transaction?</p>
+        <div class="ui form">
+            <div class="field required">
+                <label style="color: white;">Cancellation Reason</label>
+                <textarea id="cancellation-reason" rows="4" cols="50"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui red basic cancel inverted button">
+            <i class="remove icon"></i>
+            No
+        </div>
+        <div id="confirm-cancel-transaction" class="ui green ok inverted button disabled">
+            <i class="checkmark icon"></i>
+            Yes
+        </div>
+    </div>
+</div>
+
+<script>
+    $(".menu .item").tab();
+
+    // ToggleShowRecentMatchedTags
+    $("#show-recent-matched-tags").click(function () {
+        $.ajax({
+            url: "/api/users/toggleShowRecentMatchedTags",
+            method: "POST",
+            success: function () {
+                location.reload();
+            },
+            error: function (xhr) {
+                showErrorMessage("An error occurred: " + xhr.status + " " + xhr.statusText);
+            }
+        });
+    });
+
+    // ************  Get Account Balance ****************
+    const getAccountBalance = () => $.ajax({
+            url: "/api/accountBalance",
+            contentType: "application/json",
+            dataType: "json",
+            success: data => {
+                $("#account-balance").text(data.Balance)
+            },
+            error: () => {
+                $("#account-balance").text("unknown")
+            }
+        })
+
+    getAccountBalance()
+    // ****************************
+
+    // ************  Get Pending Transactions ****************
+    const getPendingTransactions = () => $.ajax({
+        url: "/api/pendingTransactions",
+        contentType: "application/json",
+        dataType: "json",
+        success: data => {
+            if (data === null || data.Transactions === null || data.Transactions.length === 0) {
+                $("#pending-transactions").hide(300);
+                $("#transaction-count").hide(300);
+                return;
+            }
+            html = `
+                <h2>Pending transactions</h2>
+                <table class="ui padded celled striped very basic table">
+                <thead>
+                    <tr>
+                        <th class="one wide">Transfer</th>
+                        <th class="one wide">ID</th>
+                        <th class="one wide">Amount</th>
+                        <th class="four wide">Description</th>
+                        <th class="three wide">From/To</th>
+                        <th class="three wide">Proposed On</th>
+                        <th class="four wide"></th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            const initiatorButtons = transactionID => `<button onclick="cancelTransaction(${transactionID})" class='ui negative basic button '>Cancel</button>`;
+            const receiverButtons = transactionID => `<div><button onclick="acceptTransaction(${transactionID})" class='ui primary basic button padded'>✓ Accept</button> <button onclick="rejectTransaction(${transactionID})" class='ui negative basic button padded'>✕ Reject</button> </div>`;
+            data.Transactions.forEach(t => html += `
+                <tr class="transaction-item" data-transaction=${t.ID}>
+                    ${
+                        t.IsInitiator ?
+                            t.InitiatedBy === t.FromID ? "<td style='border-left: 4px #db2828 solid;text-align: center;'><b style='color:#db2828'><i class='arrow left icon'></i> Out</b></td>" : "<td style='border-left: 4px #21BA45 solid;text-align: center;'><b style='color:#21BA45'><i class='arrow right icon'></i> In</b></td>" :
+                            t.InitiatedBy === t.FromID ? "<td style='border-left: 4px #21BA45 solid;text-align: center;'><b style='color:#21BA45'><i class='arrow right icon'></i> In</b></td>" : "<td style='border-left: 4px #db2828 solid;text-align: center;'><b style='color:#db2828'><i class='arrow left icon'></i> Out</b></td>"
+                    }
+                    <td style="text-align:center" data-tooltip="${t.TransactionID}" data-position="top center">
+                        ${t.TransactionID.substring(0, 8)}
+                    </td>
+                    <td style="text-align:center">
+                            ${t.Amount}
+                        </td>
+                    <td style="max-width: 225px;word-wrap: break-word;">${t.Description}</td>
+                    <td>${
+                        t.IsInitiator ?
+                            t.InitiatedBy === t.FromID ? `${t.ToEmail} (${t.ToBusinessName})` : `${t.FromEmail} (${t.FromBusinessName})` :
+                            t.InitiatedBy === t.FromID ? `${t.FromEmail} (${t.FromBusinessName})` : `${t.ToEmail} (${t.ToBusinessName})`
+                    }</td>
+                    <td>${formatTime(t.CreatedAt)}</td>
+                    <td style="text-align: center">${t.IsInitiator ? initiatorButtons(t.ID) : receiverButtons(t.ID)}</td>
+                </tr>
+            `);
+            html += `</tbody></table></br>`
+            $("#pending-transactions").html('');
+            $("#pending-transactions").append(html);
+            $("#transaction-count").append(`<span class="notification-badge">${data.Transactions.length}</span>`)
+        },
+        error: () => {
+            showErrorMessage("Geting pending transactions Failed, Please Try Again Later.")
+        }
+    })
+
+    getPendingTransactions()
+    // ****************************
+
+    // ************  Get Transaction History ****************
+    const getTransactionHistory = () => $.ajax({
+        url: "/api/recentTransactions",
+        contentType: "application/json",
+        dataType: "json",
+        success: data => {
+            if (data === null || data.Transactions === null || data.Transactions.length === 0) {
+               html = `
+                    <h2>Transaction history</h2>
+                    <p><a href="/history/search?page=1&date-from={{DaysBefore 13}}&date-to={{TimeNow}}#results">See more transfer history</a></p>
+                `
+                $("#transaction-history").html('');
+                $("#transaction-history").append(html);
+               return;
+            }
+            html = `
+            <h2>Transaction history</h2>
+                <table class="ui padded striped celled very basic table">
+                    <tbody>
+                        <tr>
+                            <th class="one wide">Transfer</th>
+                            <th class="one wide">ID</th>
+                            <th class="one wide">Amount</th>
+                            <th class="four wide">Description</th>
+                            <th class="three wide">From/To</th>
+                            <th class="three wide">Date</th>
+                            <th class="four wide"><div style="color: white;box-shadow: 0 0 0 1px white;" class="ui primary basic button padded">✓ Accept</div></th>
+                        </tr>
+            `;
+            data.Transactions.forEach(t => html += `
+                <tr>
+                    ${
+                        t.Amount < 0 ?
+                            `<td style='border-left: 4px #db2828 solid;text-align: center;'><b style="color:#db2828"><i class="arrow left icon"></i> Out</b></td>` :
+                            `<td style='border-left: 4px #21BA45 solid;text-align: center;'><b style="color:#21BA45"><i class="arrow right icon"></i>In</b></td>`
+                    }
+                    <td style="text-align:center" data-tooltip="${t.TransactionID}" data-position="top center">
+                        ${t.TransactionID.substring(0, 8)}
+                    </td>
+                    <td style="text-align:center">${t.Amount}</td>
+                    <td style="max-width: 225px;word-wrap: break-word;">${t.Description}</td>
+                    <td>${
+                        t.Amount < 0 ?
+                            `${t.ToEmail} (${t.ToBusinessName})` :
+                            `${t.FromEmail} (${t.FromBusinessName})`
+                    }</td>
+                    <td>${formatTime(t.CreatedAt)}</td>
+                    <td></td>
+                </tr>
+            `);
+            html += `</tbody></table><p><a href="/history/search?page=1&date-from={{DaysBefore 13}}&date-to={{TimeNow}}#results">See more transfer history</a></p>`
+            $("#transaction-history").html('');
+            $("#transaction-history").append(html);
+        },
+        error: () => {
+            showErrorMessage("Geting Transaction History Failed, Please Try Again Later.")
+        }
+    })
+
+    getTransactionHistory()
+    // ****************************
+
+    // Change tabs based on the anchor tag.
+    const anchor = window.top.location.hash.substr(1);
+    if (anchor === "transactions") {
+        $.tab("change tab", "second");
+        $('.menu .item[data-tab="first"]').removeClass("active");
+        $('.menu .item[data-tab="second"]').addClass("active");
+    }
+
+    // ************  Cancel Transaction Button ****************
+    const cancel = (transactionID, reason) => {
+            $.ajax({
+                method: "POST",
+                url: "/api/cancelTransaction",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    id: transactionID,
+                    reason,
+                }),
+                success: data => {
+                    if (data !== null && data.error) {
+                        showErrorMessage(data.error)
+                    }
+                    getPendingTransactions()
+                    getTransactionHistory()
+                    getAccountBalance()
+                },
+                error: () => {
+                    showErrorMessage("Cancel Failed, Please Try Again Later.")
+                }
+            })
+        }
+
+    const cancelTransaction = transactionID => {
+        $(".ui.basic.cancel.modal").modal("show");
+        $("#selectedId").val(transactionID);
+    };
+
+    $("#cancellation-reason").on("input", e => {
+        if (e.target.value == "") {
+            $("#confirm-cancel-transaction").addClass("disabled")
+        } else {
+            $("#confirm-cancel-transaction").removeClass("disabled")
+        }
+    })
+
+    $("#confirm-cancel-transaction").click(() => {
+        const id = $("#selectedId").val();
+        const reason = $("#cancellation-reason").val().replace(/\n/g, "<br />");
+        cancel(Number(id), reason);
+    });
+    // ****************************
+
+    // ************  Accept Transaction ****************
+    const acceptTransaction = transactionID => {
+        $.ajax({
+            method: "POST",
+            url: "/api/acceptTransaction",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id: transactionID
+            }),
+            success: data => {
+                if (data !== null && data.error) {
+                    showErrorMessage(data.error)
+                }
+                getPendingTransactions()
+                getTransactionHistory()
+                getAccountBalance()
+            },
+            error: e => {
+                if (e.responseJSON && e.responseJSON.message) {
+                    getPendingTransactions()
+                    showErrorMessage(e.responseJSON.message)
+                }
+            }
+        })
+    }
+    // ****************************
+
+    // ************  Reject Transaction ****************
+    const rejectTransaction = transactionID => {
+        $.ajax({
+            method: "POST",
+            url: "/api/rejectTransaction",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id: transactionID
+            }),
+            success: data => {
+                if (data !== null && data.error) {
+                    showErrorMessage(data.error)
+                }
+                getPendingTransactions()
+                getTransactionHistory()
+                getAccountBalance()
+            },
+            error: () => {
+                showErrorMessage("Reject Failed, Please Try Again Later.")
+            }
+        })
+    }
+    // ****************************
+</script>
+{{ end }}

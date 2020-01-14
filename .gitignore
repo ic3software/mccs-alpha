@@ -1,0 +1,8 @@
+.DS_Store
+.vscode
+.volumes
+mccs
+
+# config files
+production.yaml
+development.yaml

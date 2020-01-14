@@ -1,0 +1,48 @@
+{{ define "content" }}
+<h1 class="ui primary header">Transfer Units</h1>
+<form action="/admin/transaction" method="post" class="ui form">
+    <div class="ui segment secondary">
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Transfer From</label>
+                {{if .FormData.FromEmail}}
+                <input maxlength="100" type="text" name="from_email_address" value="{{.FormData.FromEmail}}"
+                    placeholder="Sender's email address">
+                {{else}}
+                <input maxlength="100" type="text" name="from_email_address" value=""
+                    placeholder="Sender's email address">
+                {{end}}
+            </div>
+            <div class="five wide field required">
+                <label>Transfer To:</label>
+                {{if .FormData.ToEmail}}
+                <input maxlength="100" type="text" name="to_email_address" value="{{.FormData.ToEmail}}"
+                    placeholder="Recipient's email address">
+                {{else}}
+                <input maxlength="100" type="text" name="to_email_address" value=""
+                    placeholder="Recipient's email address">
+                {{end}}
+            </div>
+            <div class="three wide field required">
+                <label>Amount (Credits):</label>
+                {{if .FormData.Amount}}
+                <input maxlength="20" type="number" step=0.01 name="amount" value="{{.FormData.Amount}}">
+                {{else}}
+                <input maxlength="20" type="number" step=0.01 name="amount" value="">
+                {{end}}
+            </div>
+        </div>
+        <div class="field" style="max-width: 500px;">
+            <label>Description:</label>
+            {{if .FormData.Description}}
+            <textarea maxlength="500" name="description" rows="3">{{.FormData.Description}}</textarea>
+            {{else}}
+            <textarea maxlength="500" name="description" rows="3"></textarea>
+            {{end}}
+        </div>
+        <button class="ui primary button">
+            Transfer Units
+        </button>
+    </div>
+</form>
+{{ end }}

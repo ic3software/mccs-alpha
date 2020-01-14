@@ -1,0 +1,71 @@
+{{ define "content" }}
+<h1 class="ui primary header">View/Modify User</h1>
+<form action="/admin/users/{{IDToString .User.ID}}" method="post" class="ui form">
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">User Details</h2>
+        <div class="fields">
+            <div class="four wide field">
+                <label>First Name:</label>
+                {{if .User.FirstName}}
+                <input maxlength="100" type="text" name="first_name" value="{{ .User.FirstName }}">
+                {{else}}
+                <input maxlength="100" type="text" name="first_name" value="">
+                {{end}}
+            </div>
+            <div class="five wide field">
+                <label>Last Name:</label>
+                {{if .User.LastName}}
+                <input maxlength="100" type="text" name="last_name" value="{{.User.LastName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="last_name" value="">
+                {{end}}
+            </div>
+        </div>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Email:</label>
+                <input maxlength="100" type="email" name="origin_email" value="{{.User.Email}}" hidden>
+                <input maxlength="100" type="email" name="email" value="{{.User.Email}}">
+            </div>
+            <div class="four wide field required">
+                <label>Telephone:</label>
+                {{if .User.Telephone}}
+                <input maxlength="25" type="tel" name="telephone" value="{{.User.Telephone}}">
+                {{else}}
+                <input maxlength="25" type="tel" name="telephone" value="">
+                {{end}}
+            </div>
+        </div>
+        <div class="fields">
+            <div class="field">
+                <label>Email Notifications:</label>
+                <div class="ui checkbox">
+                {{if .User.DailyNotification}}
+                    <input type="checkbox" name="daily_notification" value="true" checked="checked">
+                {{else}}
+                    <input type="checkbox" name="daily_notification" value="true">
+                {{end}}
+                <label>Send the user daily email notifications of newly matched offers and wants from other businesses</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Reset Password</h2>
+        <p><i>Create a new password for this user</i></p>
+        <div class="fields">
+            <div class="four wide field">
+                <label>Password:</label>
+                <input maxlength="100" type="password" name="new_password">
+            </div>
+            <div class="four wide field">
+                <label>Reconfirm:</label>
+                <input maxlength="100" type="password" name="confirm_password">
+            </div>
+        </div>
+        <button class="ui primary button">
+            Update User
+        </button>
+    </div>
+</form>
+{{ end }}

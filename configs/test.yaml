@@ -1,0 +1,50 @@
+env: test
+url: http://localhost:8080
+port: 8080
+reset_password_timeout: 60
+page_size: 10
+tags_limit: 10
+login_attempts_limit: 3
+login_attempts_timeout: 900
+email_from: MCCS
+daily_email_schedule: "0 0 7 * * *"
+balance_check_schedule: "0 0 * * * *"
+concurrency_num: 3
+receive_trade_contact_emails: true
+receive_signup_notifications: true
+
+transaction:
+  maxNegBal: 0
+  maxPosBal: 500
+
+psql:
+  host: postgres
+  port: 5432
+  user: postgres
+  password:
+  db: mccs
+
+mongo:
+  url: mongodb://mongo:27017
+  database: mccs
+
+es:
+  url: http://es01:9200
+
+jwt:
+  private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    xxx
+    -----END RSA PRIVATE KEY-----
+  public_key: |
+    -----BEGIN PUBLIC KEY-----
+    xxx
+    -----END PUBLIC KEY-----
+
+sendgrid:
+  key: xxx
+  sender_email: xxx
+
+recaptcha:
+  site_key: xxx
+  secret_key: xxx

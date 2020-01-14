@@ -1,0 +1,13 @@
+{{ define "content" }}
+<h1 class="ui primary header">Dashboard</h1>
+<div class="ui segment">
+    {{if ShouldDisplayTime .LastLoginDate}}
+    <h2>Welcome back, {{.Name}}</h2>
+    <div class="ui info message">
+        <p>You last logged in on {{FormatTime .LastLoginDate}} from {{.LastLoginIP}}</p>
+    </div>
+    {{ else }}
+    <h2>Welcome to the Open Credit Network, {{.Name}}</h2>
+    {{end}}
+</div>
+{{ end }}

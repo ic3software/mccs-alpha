@@ -1,0 +1,295 @@
+{{ define "content" }}
+{{if eq .Business.Status "accepted"}}
+    <div class="ui success message">
+        <h4>Upgrade to a full Trading Member</h4>
+        <p>Unlock the full potential of the Open Credit Network by applying to become a Trading Member.</p>
+        <p>Trading via mutual credit is FREE during our alpha release and, if your business meets the application criteria, you will be awarded an interest free line of credit allowing you to trade with other businesses straight away. <a href="https://opencredit.network/become-a-trading-member/" target="_blank">Find out more</a> and <a href="/member-signup">apply now</a>.</p>
+    </div>
+{{end}}
+<h1 class="ui primary header">My Account Details</h1>
+<form action="/account" method="post" class="ui form">
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">General Information</h2>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Business Name:</label>
+                {{if .Business.BusinessName}}
+                <input maxlength="100" type="text" name="business_name" value="{{.Business.BusinessName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="business_name" value="">
+                {{end}}
+            </div>
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="five wide field required">
+            {{else}}
+                <div class="five wide field">
+            {{end}}
+                <label>Type of Incorporation:</label>
+                <div class="ui selection dropdown">
+                    {{if .Business.IncType}}
+                    <input maxlength="25" type="hidden" name="inc_type" value="{{.Business.IncType}}">
+                    {{else}}
+                    <input maxlength="25" type="hidden" name="inc_type" value="">
+                    {{end}}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Type</div>
+                    <div class="menu">
+                        <div class="item" data-value="plc">Public Limited Company (PLC)</div>
+                        <div class="item" data-value="ltd">Private Company Limited by Shares (Ltd.)</div>
+                        <div class="item" data-value="guar">Company Limited by Guarantee</div>
+                        <div class="item" data-value="unltd">Unlimited Company (Unltd.)</div>
+                        <div class="item" data-value="llp">Limited Liability Partnership</div>
+                        <div class="item" data-value="cic">Community Interest Company (CIC)</div>
+                        <div class="item" data-value="ips">Industrial and Provident Society (IPS)</div>
+                        <div class="item" data-value="sole">Sole Trader</div>
+                    </div>
+                </div>
+            </div>
+            <div class="three wide field">
+                <label>Company Number:</label>
+                <input maxlength="20" type="text" name="company_number" value="{{.Business.CompanyNumber}}">
+            </div>
+        </div>
+        {{if eq .Business.Status "tradingAccepted"}}
+            <div class="field required" style="max-width: 500px;">
+        {{else}}
+            <div class="field" style="max-width: 500px;">
+        {{end}}
+            <label>Business Description:</label>
+            <textarea maxlength="500" name="description" cols="50" rows="3" value="">{{or .Business.Description ""}}</textarea>
+        </div>
+        <div class="fields">
+            <div class="five wide field">
+                <label>Website:</label>
+                {{if .Business.Website}}
+                <input maxlength="100" type="text" name="website" value="{{.Business.Website}}">
+                {{else}}
+                <input maxlength="100" type="text" name="website" value="">
+                {{end}}
+            </div>
+            <div class="three wide field">
+                <label>Business Phone:</label>
+                {{if .Business.BusinessPhone}}
+                <input maxlength="25" type="text" name="business_phone" value="{{.Business.BusinessPhone}}">
+                {{else}}
+                <input maxlength="25" type="text" name="business_phone" value="">
+                {{end}}
+            </div>
+            <div class="three wide field">
+                <label>Annual Turnover (in £):</label>
+                {{if .Business.Turnover}}
+                <input maxlength="20" type="number" name="turnover" value="{{.Business.Turnover}}">
+                {{else}}
+                <input maxlength="20" type="number" name="turnover" value="">
+                {{end}}
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">What Your Business Provides &amp; Needs</h2>
+        <p><i>Enter up to 10 descriptive tags in each input box (e.g., "Restaurant", “Food", “Noodles", etc.)
+                Start typing to see available tags. Whenever possible select existing tags to get more matches.</i></p>
+        <div class="field required">
+            <label>Products/Services Offered:</label>
+            <div class="ui fluid multiple search selection offers dropdown">
+                {{if .Business.Offers}}
+                <input maxlength="500" name="offers" type="hidden" value="{{TagsToString .Business.Offers}}">
+                {{else}}
+                <input maxlength="500" name="offers" type="hidden">
+                {{end}}
+                <div class="default text">Offers</div>
+            </div>
+            <div style="margin: 1.5em;"></div>
+            <div class="field required">
+                <label>Products/Services Wanted:</label>
+                <div class="ui fluid multiple search selection wants dropdown">
+                    {{if .Business.Wants}}
+                    <input maxlength="500" name="wants" type="hidden" value="{{TagsToString .Business.Wants}}">
+                    {{else}}
+                    <input maxlength="500" name="wants" type="hidden">
+                    {{end}}
+                    <div class="default text">Wants</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Business Address</h2>
+        <p><i>The physical location of your business</i></p>
+        {{if eq .Business.Status "tradingAccepted"}}
+            <div class="field required" style="max-width: 500px;">
+        {{else}}
+            <div class="field" style="max-width: 500px;">
+        {{end}}
+            <label>Address:</label>
+            <textarea maxlength="255" name="location_address" rows="3">{{or .Business.LocationAddress ""}}</textarea>
+        </div>
+        <div class="fields">
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="four wide field required">
+            {{else}}
+                <div class="four wide field">
+            {{end}}
+                <label>City/Town:</label>
+                {{if .Business.LocationCity}}
+                <input maxlength="50" type="text" name="location_city" value="{{.Business.LocationCity}}">
+                {{else}}
+                <input maxlength="50" type="text" name="location_city" value="">
+                {{end}}
+            </div>
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="four wide field required">
+            {{else}}
+                <div class="four wide field">
+            {{end}}
+                <label>Region/County:</label>
+                <div class="ui selection dropdown region-selection">
+                    {{if .Business.LocationRegion}}
+                    <input maxlength="50" type="hidden" name="location_region" value="{{.Business.LocationRegion}}">
+                    {{else}}
+                    <input maxlength="50" type="hidden" name="location_region" value="">
+                    {{end}}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select country first</div>
+                    <div class="menu" id="region-menu">
+                    </div>
+                </div>
+            </div>
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="three wide field required">
+            {{else}}
+                <div class="three wide field">
+            {{end}}
+                <label>Postcode:</label>
+                {{if .Business.LocationPostalCode}}
+                <input maxlength="10" type="text" name="location_postal_code" value="{{.Business.LocationPostalCode}}">
+                {{else}}
+                <input maxlength="10" type="text" name="location_postal_code" value="">
+                {{end}}
+            </div>
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="three wide field required">
+            {{else}}
+                <div class="three wide field">
+            {{end}}
+                <label>Country:</label>
+                <div class="ui selection dropdown">
+                    {{if .Business.LocationCountry}}
+                    <input maxlength="50" type="hidden" name="location_country" value="{{.Business.LocationCountry}}">
+                    {{else}}
+                    <input maxlength="50" type="hidden" name="location_country" value="">
+                    {{end}}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Country</div>
+                    <div class="menu">
+                        <div class="item" data-value="England">England</div>
+                        <div class="item" data-value="Northern Ireland">Northern Ireland</div>
+                        <div class="item" data-value="Scotland">Scotland</div>
+                        <div class="item" data-value="Wales">Wales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Your Details</h2>
+        <div class="fields">
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="five wide field required">
+            {{else}}
+                <div class="five wide field">
+            {{end}}
+                <label>First Name:</label>
+                {{if .User.FirstName}}
+                <input maxlength="100" type="text" name="first_name" value="{{ .User.FirstName }}">
+                {{else}}
+                <input maxlength="100" type="text" name="first_name" value="">
+                {{end}}
+            </div>
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="seven wide field required">
+            {{else}}
+                <div class="seven wide field">
+            {{end}}
+                <label>Last Name:</label>
+                {{if .User.LastName}}
+                <input maxlength="100" type="text" name="last_name" value="{{.User.LastName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="last_name" value="">
+                {{end}}
+            </div>
+        </div>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Email:</label>
+                <input maxlength="100" type="email" name="email" readonly value="{{.User.Email}}">
+            </div>
+            {{if eq .Business.Status "tradingAccepted"}}
+                <div class="five wide field required">
+            {{else}}
+                <div class="five wide field">
+            {{end}}
+                <label>Telephone:</label>
+                {{if .User.Telephone}}
+                <input maxlength="25" type="tel" name="telephone" value="{{.User.Telephone}}">
+                {{else}}
+                <input maxlength="25" type="tel" name="telephone" value="">
+                {{end}}
+            </div>
+        </div>
+        <h2 class="ui medium header">Change Password</h2>
+        <p><i>Create a new password to access your account</i></p>
+        <div class="fields">
+        <div class="five wide field">
+            <label>Current Password:</label>
+            <input maxlength="100" type="password" name="current_password">
+        </div>
+    </div>
+        <div class="fields">
+            <div class="five wide field">
+                <label>New Password:</label>
+                <input maxlength="100" type="password" name="new_password">
+            </div>
+            <div class="five wide field">
+                <label>Reconfirm:</label>
+                <input maxlength="100" type="password" name="confirm_password">
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Email Notifications</h2>
+        <div class="ui checkbox">
+        {{if .User.DailyNotification}}
+            <input type="checkbox" name="daily_notification" value="true" checked="checked">
+        {{else}}
+            <input type="checkbox" name="daily_notification" value="true">
+        {{end}}
+        <label>Send me daily notifications of new matches for my offers and wants from other businesses</label>
+        </div>
+    </div>
+    <button class="ui primary button">
+        Update Account Details
+    </button>
+</form>
+
+<script>
+    const checkCountry = () => {
+        const country = $("input[name*='location_country']").val()
+        if (country != "") {
+            html = ''
+            getCounties(country).map(c => html += `<div class="item" data-value="${c}">${c}</div>`)
+            $("#region-menu").append(html)
+        }
+    }
+    checkCountry()
+
+    $('input[name="location_country"]').change(() => {
+        $('.region-selection').dropdown('clear');
+        const country = $('input[name="location_country"]').val()
+        html = ''
+        getCounties(country).map(c => html += `<div class="item" data-value="${c}">${c}</div>`)
+        $("#region-menu").empty()
+        $("#region-menu").append(html)
+    });
+</script>
+{{ end }}

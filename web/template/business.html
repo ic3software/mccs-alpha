@@ -1,0 +1,259 @@
+{{ define "content" }}
+<h1 class="ui primary header">Business Details</h1>
+<div class="ui segment">
+    <div style="display: flex; align-items: center;">
+        <h2 class="ui large header" style="display: inline;margin-bottom: 0px;margin-right: 8px;">{{.Business.BusinessName}}</h2>
+        {{if .IsUserLoggedIn}}
+            {{if (IncludesID .User.FavoriteBusinesses .Business.ID)}}
+            <i class="red heart icon favorite-{{IDToString .Business.ID}}"
+                onclick="handleClickFavorite('{{IDToString .Business.ID}}')">
+            </i>
+            {{else}}
+            <i class="heart outline icon favorite-{{IDToString .Business.ID}}"
+                onclick="handleClickFavorite('{{IDToString .Business.ID}}')">
+            </i>
+            {{end}}
+        {{end}}
+        {{if eq .Business.Status "tradingAccepted"}}
+            <img style="height: 40px; padding-left: 10px;" src="/static/img/trading-member.svg" alt="trading-member">
+        {{end}}
+    </div>
+    <br>
+    <br>
+    <div class="ui stackable two column grid">
+        <div class="eleven wide column">
+            <p style="font-size: 1.3em;">{{.Business.Description}}</p>
+            <div class="ui message" style="margin: 1em 1em 1em 0;">
+                <h3 class="ui medium header" style="margin: 0 0 1em 0;">This Business Offers</h3>
+                {{ range $index, $offer := .Business.Offers }}
+                <a href="/businesses/search?page=1&tag_type=offers&tags={{$offer.Name}}">
+                    <div class="ui medium label primary padded">
+                        {{$offer.Name}}
+                    </div>
+                </a>
+                {{ end }}
+            </div>
+            <div class="ui message" style="margin: 1em 1em 1em 0;">
+                <h3 class="ui medium header" style="margin: 0 0 1em 0;">This Business Wants</h3>
+                {{ range $index, $want := .Business.Wants }}
+                <a href="/businesses/search?page=1&tag_type=wants&tags={{$want.Name}}">
+                    <div class="ui medium label orange padded">
+                        {{$want.Name}}
+                    </div>
+                </a>
+                {{ end }}
+            </div>
+
+            <div id="contact-business" style="display:none;">
+                <div class="ui message" style="margin: 1em 1em 1em 0;">
+                    {{if .IsUserLoggedIn}}
+                        <h3 class="ui medium header" style="margin: 0 0 1em 0;">Send an Email to This Business</h3>
+                        <div>From: {{.User.FirstName}} {{.User.LastName}} &lt;{{.User.Email}}&gt;</div>
+                        <div>Subject: Contact from OCN directory member</div>
+                        <br />
+                        <div class="ui form">
+                            <div class="field">
+                                <textarea id="contact-body" rows="5"></textarea>
+                            </div>
+                        </div>
+                        <br />
+                        <div style="display: flex;justify-content: flex-end;">
+                            <button class="ui button" onclick="hideContactBusinessForm()">Cancel</button>
+                            <button id="send-button" class="ui primary button" onclick="sendContactBusiness('{{IDToString .Business.ID}}')">Send</button>
+                        </div>
+                    {{else}}
+                        <div class="ui orange message" style="font-size: large;">
+                            To contact this business via the Open Credit Network you need to sign up to the directory.
+                            <a href="/signup">Create your FREE listing now</a>.
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+
+            {{if .IsUserLoggedIn}}
+            <div id="upgrade-email" style="display:none;">
+                <div class="ui message" style="margin: 1em 1em 1em 0;">
+                    <h3 class="ui medium header" style="margin: 0 0 1em 0;">Send an Email to This Business</h3>
+                    <div>From: {{.User.FirstName}} {{.User.LastName}} &lt;{{.User.Email}}&gt;</div>
+                    <div>Subject: Trade request from OCN directory member</div>
+                    <br />
+                    <div class="ui form">
+                        <div class="upgrade-email-message">
+                            Hi {{.Business.BusinessName}},
+                            <br/>
+                            <br/>
+                            <a href="trade.opencredit.network/member-signup">If you upgrade your membership at the Open Credit Network and become a Trading Member</a>, I would like to trade with you in mutual credit. Find out more about <a href="//opencredit.network/become-a-trading-member/">becoming a Trading Member</a>. I hope we can do business in the new economy soon!
+                        </div>
+                    </div>
+                    <br />
+                    <div style="display: flex;justify-content: flex-end;">
+                        <button class="ui button" onclick="hideUpgradeEmailForm()">Cancel</button>
+                        <button class="ui primary button upgrade-btn" onclick="sendUpgradeEmail('{{IDToString .Business.ID}}')">Send</button>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+
+            <div id="info-message" style="display:none;">
+                <div class="ui info message" style="margin: 1em 1em 1em 0;">
+                    You will be able to contact other businesses once your application to be listed in our directory has been accepted.
+                </div>
+            </div>
+        </div>
+
+        <div class="five wide column">
+            {{if or .Business.LocationAddress .Business.LocationCity .Business.LocationRegion .Business.LocationPostalCode .Business.LocationCountry}}
+            <h3 class="ui medium header" style="margin-bottom:0;">Address</h3>
+            <div>{{.Business.LocationAddress}}</div>
+            <div>{{.Business.LocationCity}}</div>
+            <div>{{.Business.LocationRegion}}</div>
+            <div>{{.Business.LocationPostalCode}}</div>
+            <div>{{.Business.LocationCountry}}</div>
+            {{end}}
+            {{if .Business.BusinessPhone}}
+            <h3 class="ui medium header" style="margin-bottom:0;">Phone</h3>
+            <div>{{.Business.BusinessPhone}}</div>
+            {{end}}
+            {{if .Business.Website}}
+            <h3 class="ui medium header" style="margin-bottom:0;">Website</h3>
+            <p class="ui small header"><a href="{{.Business.Website}}" target="_blank">{{.Business.Website}}</a></p>
+            {{end}}
+            <br>
+            <br>
+            <a id="contact-btn" class="ui primary button" href="#" onclick="showContactBusinessForm()">Contact This Business</a>
+            <br>
+            <br>
+            <div id="trading-button" style="display:none;">
+                <a href="/transaction?user_email={{.BusinessEmail}}" class="ui primary button">Trade With This Business</a>
+            </div>
+            <div id="trading-member-signup" style="display:none;">
+                <a href="//opencredit.network/become-a-trading-member" class="ui primary button" target="_blank">Trade With This Business</a>
+            </div>
+            <div id="upgrade-email-btn" style="display:none;">
+                <div class="ui primary button" onclick="showUpgradeEmailForm()">Trade With This Business</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const tradingMemberStatus = () => {
+        $.ajax({
+            method: "GET",
+            url: "/api/tradingMemberStatus?business_id={{IDToString .Business.ID}}",
+            contentType: "application/json",
+            success: data => {
+                if (data.self === undefined) {
+                    $("#trading-member-signup").show();
+                    return;
+                }
+                if (data.self === true && data.other == true) {
+                    $("#trading-button").show();
+                    return;
+                }
+                if (data.self == true && data.other == false) {
+                    $("#upgrade-email-btn").show();
+                    return;
+                }
+            },
+            error: () => {}
+        });
+    };
+    tradingMemberStatus()
+
+    // Contact Business ***************************
+    const showContactBusinessForm = () => {
+        $.ajax({
+            url: "/api/businessStatus",
+            contentType: "application/json",
+            dataType: 'json',
+            success: data => {
+                if (data === null) {
+                    return
+                }
+                if (data.status === "pending" || data.status === "rejected") {
+                    $("#info-message").show(500, () => {})
+                } else {
+                    $("#contact-business").show(500, () => {})
+                    $("#contact-btn").hide()
+                    $("#trade-btn").hide()
+                }
+            },
+            error: () => {
+                $("#contact-business").show(500, () => {})
+                $("#contact-btn").hide()
+                $("#trade-btn").hide()
+            }
+        })
+    }
+    const hideContactBusinessForm = () => {
+        $("#contact-business").hide(500, () => {})
+        $("#contact-btn").show()
+        $("#trade-btn").show()
+    }
+    const sendContactBusiness = bID => {
+        if ($("#contact-body").val() == "") {
+            showErrorMessage("The content body is empty");
+            return
+        }
+
+        $("#send-button").addClass("loading disabled")
+
+        $.ajax({
+            url: `/api/contactBusiness`,
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id: bID,
+                body: $("#contact-body").val()
+            }),
+            success: function() {
+                showSuccessMessage("Your message has been emailed to the owner of this business, and any replies will be sent directly to your email address.")
+                hideContactBusinessForm()
+                $("#send-button").removeClass("loading disabled")
+                $("#contact-body").val("")
+            },
+            error: function(xhr) {
+                showErrorMessage("An error occurred: " + xhr.status + " " + xhr.statusText);
+                hideContactBusinessForm()
+                $("#send-button").removeClass("loading disabled")
+            }
+        });
+    }
+    //************************************************
+
+    // Upgrade Business ***************************
+    const showUpgradeEmailForm = () => {
+        $("#upgrade-email-btn").hide(500, () => {})
+        $("#upgrade-email").show()
+    }
+    const hideUpgradeEmailForm = () => {
+        $("#upgrade-email-btn").show()
+        $("#upgrade-email").hide(500, () => {})
+    }
+    const sendUpgradeEmail = bID => {
+        $(".upgrade-btn").addClass("loading disabled")
+        $.ajax({
+            url: "/api/contactBusiness",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id: bID,
+                body: $(".upgrade-email-message").html()
+            }),
+            success: function() {
+                showSuccessMessage("Your message has been emailed to the owner of this business, and any replies will be sent directly to your email address.")
+                hideUpgradeEmailForm()
+                $(".upgrade-btn").removeClass("loading disabled")
+            },
+            error: function(xhr) {
+                showErrorMessage("An error occurred: " + xhr.status + " " + xhr.statusText);
+                hideUpgradeEmailForm()
+                $(".upgrade-btn").removeClass("loading disabled")
+            }
+        });
+    }
+    //************************************************
+</script>
+{{ end }}

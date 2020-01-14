@@ -1,0 +1,201 @@
+{{ define "content" }}
+<h1 class="ui primary header">Apply to become a Trading Member of the Open Credit Network</h1>
+<p style="font-size: 1.25em;">You're just a few clicks away from accessing interest free credit and helping to kick-start a new economy!</p>
+<p>This form is to make an application to become a full Trading Member of the alpha-phase of the UK Open Credit Network. Becoming a Trading Member has a few legal and financial implications so please make sure that you are happy with the <a href="https://opencredit.network/membership-agreement/" target="_blank">Membership Agreement</a> before you fill in this form.</p>
+<form action="/member-signup" method="post" class="ui form">
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">General Information</h2>
+        <p><i>Please provide your company number as registered at Companies House. If you are a sole trader, simply leave it blank.</i></p>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>Business Name:</label>
+                {{if .BusinessName}}
+                <input maxlength="100" type="text" name="business_name" value="{{.BusinessName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="business_name" value="">
+                {{end}}
+            </div>
+            <div class="three wide field required">
+                <label>Type of Incorporation:</label>
+                <div class="ui selection dropdown">
+                    {{if .IncType}}
+                    <input maxlength="25" type="hidden" name="inc_type" value="{{.IncType}}">
+                    {{else}}
+                    <input maxlength="25" type="hidden" name="inc_type" value="">
+                    {{end}}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select one...</div>
+                    <div class="menu">
+                        <div class="item" data-value="plc">Public Limited Company (PLC)</div>
+                        <div class="item" data-value="ltd">Private Company Limited by Shares (Ltd.)</div>
+                        <div class="item" data-value="guar">Company Limited by Guarantee</div>
+                        <div class="item" data-value="unltd">Unlimited Company (Unltd.)</div>
+                        <div class="item" data-value="llp">Limited Liability Partnership</div>
+                        <div class="item" data-value="cic">Commercial Interest Company (CIC)</div>
+                        <div class="item" data-value="ips">Industrial and Provident Society (IPS)</div>
+                        <div class="item" data-value="sole">Sole Trader</div>
+                    </div>
+                </div>
+            </div>
+            <div class="three wide field">
+                <label>Company Number:</label>
+                {{if .CompanyNumber}}
+                <input maxlength="20" type="text" name="company_number" value="{{ .CompanyNumber }}">
+                {{else}}
+                <input maxlength="20" type="text" name="company_number" value="">
+                {{end}}
+            </div>
+        </div>
+        <div class="field required" style="max-width: 500px;">
+            <label>Business Description:</label>
+            <textarea maxlength="500" name="description" cols="50" rows="3" value="" placeholder="Please summarise your business in one or two sentences.">{{or .Description ""}}</textarea>
+        </div>
+        <div class="fields">
+            <div class="five wide field">
+                <label>Website:</label>
+                {{if .Website}}
+                <input maxlength="100" type="text" name="website" value="{{.Website}}">
+                {{else}}
+                <input maxlength="100" type="text" name="website" value="" placeholder="https://yoursite.co.uk">
+                {{end}}
+            </div>
+            <div class="three wide field">
+                <label>Business Phone:</label>
+                {{if .BusinessPhone}}
+                <input maxlength="25" type="text" name="business_phone" value="{{.BusinessPhone}}">
+                {{else}}
+                <input maxlength="25" type="text" name="business_phone" value="">
+                {{end}}
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Business Address</h2>
+        <p><i>The physical location of your business</i></p>
+        <div class="field required" style="max-width: 500px;">
+            <label>Address:</label>
+            <textarea maxlength="255" name="location_address" rows="3">{{or .LocationAddress ""}}</textarea>
+        </div>
+        <div class="fields">
+            <div class="four wide field required">
+                <label>City/Town:</label>
+                {{if .LocationCity}}
+                <input maxlength="50" type="text" name="location_city" value="{{.LocationCity}}">
+                {{else}}
+                <input maxlength="50" type="text" name="location_city" value="">
+                {{end}}
+            </div>
+            <div class="four wide field required">
+                <label>Region/County:</label>
+                <div class="ui selection dropdown region-selection">
+                    {{if .LocationRegion}}
+                    <input maxlength="50" type="hidden" name="location_region" value="{{.LocationRegion}}">
+                    {{else}}
+                    <input maxlength="50" type="hidden" name="location_region" value="">
+                    {{end}}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select country first</div>
+                    <div class="menu" id="region-menu">
+                    </div>
+                </div>
+            </div>
+            <div class="three wide field required">
+                <label>Postcode:</label>
+                {{if .LocationPostalCode}}
+                <input maxlength="10" type="text" name="location_postal_code" value="{{.LocationPostalCode}}">
+                {{else}}
+                <input maxlength="10" type="text" name="location_postal_code" value="">
+                {{end}}
+            </div>
+            <div class="three wide field required">
+                <label>Country:</label>
+                <div class="ui selection dropdown">
+                    {{if .LocationCountry}}
+                    <input maxlength="50" type="hidden" name="location_country" value="{{.LocationCountry}}">
+                    {{else}}
+                    <input maxlength="50" type="hidden" name="location_country" value="">
+                    {{end}}
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Select one...</div>
+                    <div class="menu">
+                        <div class="item" data-value="England">England</div>
+                        <div class="item" data-value="Northern Ireland">Northern Ireland</div>
+                        <div class="item" data-value="Scotland">Scotland</div>
+                        <div class="item" data-value="Wales">Wales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Your Details</h2>
+        <p><i>Your name and telephone number will not be displayed in our directory and will only be used by us to stay in touch with you.</i></p>
+        <div class="fields">
+            <div class="five wide field required">
+                <label>First Name:</label>
+                {{if .FirstName}}
+                <input maxlength="100" type="text" name="first_name" value="{{.FirstName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="first_name" value="">
+                {{end}}
+            </div>
+            <div class="seven wide field required">
+                <label>Last Name:</label>
+                {{if .LastName}}
+                <input maxlength="100" type="text" name="last_name" value="{{.LastName}}">
+                {{else}}
+                <input maxlength="100" type="text" name="last_name" value="">
+                {{end}}
+            </div>
+        </div>
+        <br>
+        <div class="fields">
+                <div class="five wide field required">
+                <label>Telephone:</label>
+                {{if .Telephone}}
+                <input maxlength="25" type="tel" name="telephone" value="{{.Telephone}}">
+                {{else}}
+                <input maxlength="25" type="tel" name="telephone" value="">
+                {{end}}
+            </div>
+        </div>
+    </div>
+    <div class="ui segment secondary">
+        <h2 class="ui medium header">Certification and Data Usage</h2>
+        <p><i>Please ensure that you have read and understood the <a href="https://opencredit.network/membership-agreement/" target="_blank">Membership Agreement</a>.</i></p>
+        <div class="field">
+            <div class="ui checkbox">
+                <input type="checkbox" name="authorised">
+                <label>I have read and agree to the Membership Agreement on behalf of my Business.  <span class="ui text red">*</span></label>
+            </div>
+        </div>
+        <p><i>The Open Credit Network will never pass on your details without your explicit consent but we will make your details  available to other members of the network as described in the Membership Agreement, for the purpose of facilitating trade within the network.</i></p>
+        <div class="g-recaptcha" style="margin: 2em 0;" data-sitekey={{.RecaptchaSitekey}}></div>
+        <button class="ui primary button">
+            Apply Now
+        </button>
+        <a href="/" class="ui button">Cancel</a>
+    </div>
+</form>
+
+<script>
+    const checkCountry = () => {
+        const country = $("input[name*='location_country']").val()
+        if (country != "") {
+            html = ''
+            getCounties(country).map(c => html += `<div class="item" data-value="${c}">${c}</div>`)
+            $("#region-menu").append(html)
+        }
+    }
+    checkCountry()
+
+    $('input[name="location_country"]').change(() => {
+        $('.region-selection').dropdown('clear');
+        const country = $('input[name="location_country"]').val()
+        html = ''
+        getCounties(country).map(c => html += `<div class="item" data-value="${c}">${c}</div>`)
+        $("#region-menu").empty()
+        $("#region-menu").append(html)
+    });
+</script>
+{{ end }}

@@ -1,0 +1,37 @@
+FROM golang:1.13 as builder
+
+WORKDIR /temp
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go get -v -t -d ./...
+
+COPY . .
+
+# Build with version information
+ARG APP=mccs
+ARG VERSION_DIR="github.com/ic3network/mccs-alpha/internal/pkg/version"
+ARG GIT_TAG
+ARG BUILD_DATE
+ARG GIT_COMMIT
+ARG GIT_TREE_STATUS
+ARG ldflags="-w -X $VERSION_DIR.gitTag=$GIT_TAG -X $VERSION_DIR.buildDate=$BUILD_DATE -X $VERSION_DIR.gitCommit=$GIT_COMMIT -X $VERSION_DIR.gitTreeState=$GIT_TREE_STATUS"
+
+# * CGO_ENABLED=0 to build a statically-linked executable
+RUN CGO_ENABLED=0 GOOS=linux go build -a -v -ldflags "$ldflags" -o "$APP" ./cmd/mccs-alpha
+
+######## Start a new stage from scratch #######
+FROM alpine:latest
+RUN apk --no-cache --update upgrade && apk --no-cache add ca-certificates
+
+WORKDIR /app
+
+COPY --from=builder /temp .
+COPY --from=0 /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+EXPOSE 8080
+
+# Run the executable
+ENTRYPOINT ["./mccs", "-config=production"]
+CMD []

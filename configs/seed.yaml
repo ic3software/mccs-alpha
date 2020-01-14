@@ -1,0 +1,57 @@
+# To create a development.yaml file, please replace xxx with actual values.
+# Also remember to check the docker-compose file to update the relative url links.
+
+env: seed
+url: http://localhost:8080
+port: 8080
+reset_password_timeout: 60
+page_size: 10
+tags_limit: 10
+login_attempts_limit: 3
+login_attempts_timeout: 900
+email_from: MCCS
+daily_email_schedule: "0 0 7 * * *"
+balance_check_schedule: "0 0 * * * *"
+concurrency_num: 3
+receive_trade_contact_emails: false
+receive_signup_notifications: false
+
+transaction:
+  maxNegBal: 0
+  maxPosBal: 500
+
+psql:
+  # change "localhost" to "postgres" when you are creating a development.yaml / production.yaml.
+  host: localhost
+  port: 5432
+  user: postgres
+  password:
+  db: mccs
+
+mongo:
+  # change "localhost" to "mongo" when you are creating a development.yaml / production.yaml.
+  url: mongodb://localhost:27017
+  database: mccs
+
+es:
+  # change "localhost" to "es01" when you are creating a development.yaml / production.yaml.
+  url: http://localhost:9200
+
+jwt:
+  private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    xxx
+    -----END RSA PRIVATE KEY-----
+  public_key: |
+    -----BEGIN PUBLIC KEY-----
+    xxx
+    -----END PUBLIC KEY-----
+
+sendgrid:
+  key: xxx
+  sender_email: xxx
+
+# Use reCAPTCHA v2, not v3
+recaptcha:
+  site_key: xxx
+  secret_key: xxx

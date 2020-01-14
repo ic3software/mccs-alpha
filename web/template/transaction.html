@@ -1,0 +1,123 @@
+{{ define "content" }}
+<h1 class="ui primary header">Transfer Credits</h1>
+<form action="/transaction" method="post" class="ui form">
+    <div class="ui segment secondary">
+        <div class="fields">
+            <div class="spaced three wide field">
+                <div class="ui form">
+                <div class="grouped fields">
+                    <div class="field">
+                    <div class="ui radio checkbox">
+                        {{if eq .FormData.Type "send"}}
+                        <input type="radio" name="transfer_type" value="send" checked="checked">
+                        {{else}}
+                            {{/* default value */}}
+                            {{if ne .FormData.Type "send"}}
+                            <input onclick="handleClickSned()" type="radio" name="transfer_type" value="send" checked="checked">
+                            {{else}}
+                            <input onclick="handleClickSned()" type="radio" name="transfer_type" value="send">
+                            {{end}}
+                        {{end}}
+                        <label for="send">I want to send</label>
+                    </div>
+                    </div>
+                    <div class="field">
+                    <div class="ui radio checkbox">
+                        {{if eq .FormData.Type "receive"}}
+                        <input onclick="handleClickReceive()" type="radio" name="transfer_type" value="receive" checked="checked">
+                        {{else}}
+                        <input onclick="handleClickReceive()" type="radio" name="transfer_type" value="receive">
+                        {{end}}
+                        <label for="receive">I want to receive</label>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="three wide field required">
+                <label>Amount (Credits):</label>
+                {{if .FormData.Amount}}
+                <input maxlength="20" type="number" step=0.01 name="amount" value="{{.FormData.Amount}}">
+                {{else}}
+                <input maxlength="20" type="number" step=0.01 name="amount" value="">
+                {{end}}
+            </div>
+        </div>
+        <div class="field">
+            <div class="five wide field required">
+                <label class="direction-lable">To:</label>
+                <div style="display: flex;justify-content: center;align-items: center">
+                    {{if .FormData.Email}}
+                    <input
+                        id="email_address"
+                        maxlength="100"
+                        type="text"
+                        name="email_address"
+                        value="{{.FormData.Email}}"
+                        placeholder="Recipient's email address"
+                        style="margin-right: 20px;"
+                    >
+                    {{else}}
+                    <input
+                        id="email_address"
+                        maxlength="100"
+                        type="text"
+                        name="email_address"
+                        value=""
+                        placeholder="Recipient's email address"
+                        style="margin-right: 20px;"
+                    >
+                    {{end}}
+                    <span id="business_name" style="font-weight: bolder; font-size: 1.25rem;"></span>
+                <div>
+            </div>
+        </div>
+        <br />
+        <div class="field" style="max-width: 500px;">
+            <label>Description:</label>
+            {{if .FormData.Description}}
+            <textarea maxlength="500" name="description" rows="3">{{.FormData.Description}}</textarea>
+            {{else}}
+            <textarea maxlength="500" name="description" rows="3"></textarea>
+            {{end}}
+        </div>
+        <br />
+        <div>Your current balance: {{FormatAccountBalance .CurBalance}}</div>
+        <div>Your available credit: {{FormatAccountBalance .MaxNegBalance}}</div>
+        <br />
+        <button class="ui primary button">
+            Go
+        </button>
+        <div onclick="handleClickCancel()" class="ui button">
+            Cancel
+        </div>
+    </div>
+</form>
+
+<script>
+    const handleClickSned = () => $(".direction-lable").text("To:");
+    const handleClickReceive = () => $(".direction-lable").text("From:");
+    const handleClickCancel = () => window.location.href = "/transaction/cancelPropose";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("user_email") != null) {
+        $("#email_address").val(urlParams.get("user_email"));
+    }
+
+    const getBusinessName = debounce(function (email) {
+        $.ajax({
+            method: "GET",
+            url: `/api/getBusinessName?email=${email}`,
+            contentType: "application/json",
+            success: data => {
+                $("#business_name").text(data.Name)
+            },
+            error: () => {
+                $("#business_name").text("")
+            }
+        });
+    }, 1000)
+
+    $("#email_address").keyup(() => getBusinessName($("#email_address").val()));
+</script>
+{{ end }}
