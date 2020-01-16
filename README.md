@@ -92,7 +92,7 @@ You can create a new account by signing up:
 https://alpha.ic3.dev/signup
 
 Or just login and use one of the demo accounts:  
-user =jdoe1testoct@opencredit.network (or jdoe2, jdoe3 ... up to jdoe5)  
+user =jdoe1@dev.null (or jdoe2, jdoe3 ... up to jdoe5)  
 pass = password (all lower case)
 
 And if you want to see the admin side, here's the login:   
@@ -111,8 +111,10 @@ Basic requirements: Go version 1.13+, Docker and Docker Compose ([see all requir
 
 1. Use the [example file](configs/seed.yaml) to create `configs/development.yaml` and change the following parameters
     ```
+    env: development
+    
     psql:
-      host: localhost
+      host: postgres
 
     mongo:
         url: mongodb://mongo:27017

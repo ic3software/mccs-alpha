@@ -1,6 +1,7 @@
 # To create a development.yaml file, please replace xxx with actual values.
 # Also remember to check the docker-compose file to update the relative url links.
 
+# change "seed" to "development" or "production"
 env: seed
 url: http://localhost:8080
 port: 8080
