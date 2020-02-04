@@ -50,22 +50,7 @@ func (es *business) Create(id primitive.ObjectID, data *types.BusinessData) erro
 	return nil
 }
 
-func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, int, error) {
-	if page < 0 || page == 0 {
-		return nil, 0, 0, e.New(e.InvalidPageNumber, "find business failed")
-	}
-
-	var ids []string
-	size := viper.GetInt("page_size")
-	from := viper.GetInt("page_size") * (int(page) - 1)
-
-	q := elastic.NewBoolQuery()
-
-	if c.ShowUserFavoritesOnly {
-		idQuery := elastic.NewIdsQuery().Ids(util.ToIDStrings(c.FavoriteBusinesses)...)
-		q.Must(idQuery)
-	}
-
+func matchStatuses(q *elastic.BoolQuery, c *types.SearchCriteria) {
 	if len(c.Statuses) != 0 {
 		qq := elastic.NewBoolQuery()
 		for _, status := range c.Statuses {
@@ -73,21 +58,9 @@ func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, in
 		}
 		q.Must(qq)
 	}
+}
 
-	if c.BusinessName != "" {
-		q.Must(newFuzzyWildcardQuery("businessName", c.BusinessName))
-	}
-	if c.LocationCountry != "" {
-		q.Must(elastic.NewMatchQuery("locationCountry", c.LocationCountry))
-	}
-	if c.LocationCity != "" {
-		q.Must(newFuzzyWildcardQuery("locationCity", c.LocationCity))
-	}
-
-	if c.AdminTag != "" {
-		q.Must(elastic.NewMatchQuery("adminTags", c.AdminTag))
-	}
-
+func matchTags(q *elastic.BoolQuery, c *types.SearchCriteria) {
 	// "Tag Added After" will associate with "tags".
 	if c.TagType == constant.OFFERS && len(c.Tags) != 0 {
 		qq := elastic.NewBoolQuery()
@@ -112,6 +85,43 @@ func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, in
 		// Must match one of the "Should" queries.
 		q.Must(qq)
 	}
+}
+
+func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, int, error) {
+	if page < 0 || page == 0 {
+		return nil, 0, 0, e.New(e.InvalidPageNumber, "find business failed")
+	}
+
+	var ids []string
+	size := viper.GetInt("page_size")
+	from := viper.GetInt("page_size") * (int(page) - 1)
+
+	q := elastic.NewBoolQuery()
+
+	q.Should(elastic.NewMatchQuery("status", constant.Trading.Accepted))
+
+	if c.ShowUserFavoritesOnly {
+		idQuery := elastic.NewIdsQuery().Ids(util.ToIDStrings(c.FavoriteBusinesses)...)
+		q.Must(idQuery)
+	}
+
+	matchStatuses(q, c)
+
+	if c.BusinessName != "" {
+		q.Must(newFuzzyWildcardQuery("businessName", c.BusinessName))
+	}
+	if c.LocationCountry != "" {
+		q.Must(elastic.NewMatchQuery("locationCountry", c.LocationCountry))
+	}
+	if c.LocationCity != "" {
+		q.Must(newFuzzyWildcardQuery("locationCity", c.LocationCity))
+	}
+
+	if c.AdminTag != "" {
+		q.Must(elastic.NewMatchQuery("adminTags", c.AdminTag))
+	}
+
+	matchTags(q, c)
 
 	res, err := es.c.Search().
 		Index(es.index).
