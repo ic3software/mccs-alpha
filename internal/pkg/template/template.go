@@ -35,6 +35,7 @@ func NewView(templateName string) *View {
 			"N":                    n,
 			"IDToString":           idToString,
 			"FormatTime":           formatTime,
+			"FormatTimeRFC3339":    formatTimeRFC3339,
 			"FormatAccountBalance": formatAccountBalance,
 			"FormatTransactionID":  formatTransactionID,
 			"ShouldDisplayTime":    shouldDisplayTime,
