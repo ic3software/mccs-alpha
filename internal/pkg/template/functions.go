@@ -65,6 +65,11 @@ func formatTime(t time.Time) string {
 		tt.Hour(), tt.Minute(), tt.Second())
 }
 
+func formatTimeRFC3339(t time.Time) string {
+	tt := t.UTC()
+	return tt.Format(time.RFC3339)
+}
+
 func formatAccountBalance(balance float64) string {
 	return fmt.Sprintf("%.2f", balance)
 }

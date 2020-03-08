@@ -3,10 +3,10 @@ package dailyemail
 import (
 	"github.com/ic3network/mccs-alpha/internal/app/service"
 	"github.com/ic3network/mccs-alpha/internal/app/types"
+	"github.com/ic3network/mccs-alpha/internal/pkg/e"
 	"github.com/ic3network/mccs-alpha/internal/pkg/email"
 	"github.com/ic3network/mccs-alpha/internal/pkg/helper"
 	"github.com/ic3network/mccs-alpha/internal/pkg/l"
-	"github.com/ic3network/mccs-alpha/internal/pkg/e"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
