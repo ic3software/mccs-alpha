@@ -49,10 +49,10 @@ func (th *tradingHandler) signupPage() func(http.ResponseWriter, *http.Request) 
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Check if the business has the status of "accepted".
 		business, err := BusinessHandler.FindByUserID(r.Header.Get("userID"))
-		if err != nil || business.Status != constant.Business.Accepted {
+		/*if err != nil || business.Status != constant.Business.Accepted {
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
-		}
+		}*/
 		user, err := UserHandler.FindByID(r.Header.Get("userID"))
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusFound)

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"encoding/json"
 	"net/http"
 	"sync"
@@ -180,7 +181,9 @@ func (u *userHandler) registerHandler() func(http.ResponseWriter, *http.Request)
 			}
 		}()
 
-		http.Redirect(w, r, "/", http.StatusFound)
+		submitURL := r.FormValue("submit")
+		//fmt.Println("MY BLOODY URL: ", submitURL)
+		http.Redirect(w, r, submitURL, http.StatusFound)
 	}
 }
 
