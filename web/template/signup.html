@@ -101,14 +101,16 @@
             </div>
         </div>
         <div class="g-recaptcha" style="margin: 2em 0;" data-sitekey={{.RecaptchaSitekey}}></div>
-        </p>Your directory entry will be reviewed by the OCN Team and we will get in touch to let you know when it goes live. Your personal details will not be made public or shared with any third parties and you can cancel your listing at any time.</p>
-        <button class="ui primary button" name="submit" type="submit" value="/">
+        <p>Your directory entry will be reviewed by the OCN Team and we will get in touch to let you know when it goes live. Your personal details will not be made public or shared with any third parties and you can cancel your listing at any time.</p>
+
+        <button data-tooltip="This option will list your business on our directory" data-variation="tiny" class="ui primary button" name="submit" type="submit" value="/">
             Apply for Free Listing
         </button>
-        <button class="ui secondary button" name="submit" type="submit" value="/member-signup">
+        <button class="ui secondary button" data-tooltip="As well as listing you on the directory, this option will also allow you to trade with other members" data-variation="tiny" name="submit" type="submit" value="/member-signup">
             Also Apply for Trading Membership
         </button>
-        <a href="/" class="ui button">Cancel</a>
+        <a href="/" class="ui button" data-tooltip="Cancel the form entries" data-variation="tiny">Cancel</a>
+
     </div>
 </form>
 {{ end }}
