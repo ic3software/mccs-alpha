@@ -83,28 +83,6 @@ Completed transfers are presented as a statement like you would see in an online
 
 Initiated transfers are presented to the users. If users created a transfer, they have the option to cancel it before the receiver of the transfer (which could be a credit to or debit from their account) approves or rejects the transfer. Likewise if users receive a transfer, they can decide whether to approve or reject it. Approved transfers are set to the completed state, rejected (by the receiver) and cancelled (by the initiator) transfers are set to the cancelled state.
 
-## Demo Site
-
-A demo site of MCCS is available at:  
-https://alpha.ic3.dev
-
-You can create a new account by signing up:  
-https://alpha.ic3.dev/signup
-
-Or just login and use one of the demo accounts:  
-user =jdoe1@dev.null (or jdoe2, jdoe3 ... up to jdoe5)  
-pass = password (all lower case)
-
-And if you want to see the admin side, here's the login:   
-https://alpha.ic3.dev/admin/login  
-user = admin1@dev.null or admin2@dev.null  
-pass = password
-
-There are 200 businesses made up of dummy data in the database already.
-
-The demo site will be reset from time to time, so any test accounts you create will eventually be wiped.
-
-
 ## How to Start
 
 Basic requirements: Go version 1.13+, Docker and Docker Compose ([see all requirements](#requirements))
