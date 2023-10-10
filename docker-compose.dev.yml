@@ -39,6 +39,7 @@ services:
       - node.name=es01
       - cluster.initial_master_nodes=es01
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.system_call_filter=false
     ports:
       - 9200:9200
     volumes:
