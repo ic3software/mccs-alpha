@@ -1,12 +1,15 @@
-FROM golang:1.13
+# Base image from which we are building.
+FROM golang:1.19.5-alpine
 
 WORKDIR /usr/src/app
 
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 
-RUN go get -v -t -d ./...
+# Download the dependencies listed in the go.mod file.
+RUN go mod download
 
-RUN go get github.com/cespare/reflex
+# Install reflex, a tool for hot reloading of Go applications.
+RUN go install github.com/cespare/reflex@latest
 
+# The CMD instruction provides defaults for executing the container.
 CMD ["reflex", "-c", "./reflex.dev.conf"]
