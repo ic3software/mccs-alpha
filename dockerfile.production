@@ -1,11 +1,11 @@
-FROM golang:1.13 as builder
+FROM golang:1.19.5-alpine
 
 WORKDIR /temp
 
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 
-RUN go get -v -t -d ./...
+# Download the dependencies listed in the go.mod file.
+RUN go mod download
 
 COPY . .
 
