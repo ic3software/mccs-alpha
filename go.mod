@@ -8,7 +8,7 @@ require (
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/gorm v1.9.16
-	github.com/jinzhu/now v1.1.1
+	github.com/jinzhu/now v1.1.5
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron v1.2.0
