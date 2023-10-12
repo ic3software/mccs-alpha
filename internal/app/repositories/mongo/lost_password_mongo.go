@@ -45,7 +45,8 @@ func (l *lostPassword) FindByToken(token string) (*types.LostPassword, error) {
 		return nil, e.New(e.TokenInvalid, "token not found")
 	}
 	lostPassword := types.LostPassword{}
-	err := l.c.FindOne(context.Background(), types.LostPassword{Token: token}).Decode(&lostPassword)
+	err := l.c.FindOne(context.Background(), types.LostPassword{Token: token}).
+		Decode(&lostPassword)
 	if err != nil {
 		return nil, e.New(e.TokenInvalid, "token not found")
 	}
@@ -57,7 +58,8 @@ func (l *lostPassword) FindByEmail(email string) (*types.LostPassword, error) {
 		return nil, e.New(e.TokenInvalid, "token not found")
 	}
 	lostPassword := types.LostPassword{}
-	err := l.c.FindOne(context.Background(), types.LostPassword{Email: email}).Decode(&lostPassword)
+	err := l.c.FindOne(context.Background(), types.LostPassword{Email: email}).
+		Decode(&lostPassword)
 	if err != nil {
 		return nil, e.New(e.TokenInvalid, "token not found")
 	}

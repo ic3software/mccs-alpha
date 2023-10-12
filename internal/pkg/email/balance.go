@@ -11,7 +11,11 @@ type balance struct{}
 var Balance = &balance{}
 
 func (b *balance) NonZeroBalance(from time.Time, to time.Time) error {
-	body := "Non-zero balance encountered! Please check the timespan from " + from.Format("2006-01-02 15:04:05") + " to " + to.Format("2006-01-02 15:04:05") + " in the posting table."
+	body := "Non-zero balance encountered! Please check the timespan from " + from.Format(
+		"2006-01-02 15:04:05",
+	) + " to " + to.Format(
+		"2006-01-02 15:04:05",
+	) + " in the posting table."
 
 	d := emailData{
 		receiver:      viper.GetString("email_from"),

@@ -50,15 +50,29 @@ func (u *userHandler) RegisterRoutes(
 		public.Path("/signup").HandlerFunc(u.registerHandler()).Methods("POST")
 		public.Path("/login").HandlerFunc(u.loginPage()).Methods("GET")
 		public.Path("/login").HandlerFunc(u.loginHandler()).Methods("POST")
-		public.Path("/lost-password").HandlerFunc(u.lostPasswordPage()).Methods("GET")
-		public.Path("/lost-password").HandlerFunc(u.lostPassword()).Methods("POST")
-		public.Path("/password-resets/{token}").HandlerFunc(u.passwordResetPage()).Methods("GET")
-		public.Path("/password-resets/{token}").HandlerFunc(u.passwordReset()).Methods("POST")
+		public.Path("/lost-password").
+			HandlerFunc(u.lostPasswordPage()).
+			Methods("GET")
+		public.Path("/lost-password").
+			HandlerFunc(u.lostPassword()).
+			Methods("POST")
+		public.Path("/password-resets/{token}").
+			HandlerFunc(u.passwordResetPage()).
+			Methods("GET")
+		public.Path("/password-resets/{token}").
+			HandlerFunc(u.passwordReset()).
+			Methods("POST")
 		private.Path("/logout").HandlerFunc(u.logoutHandler()).Methods("GET")
 
-		private.Path("/api/users/removeFromFavoriteBusinesses").HandlerFunc(u.removeFromFavoriteBusinesses()).Methods("POST")
-		private.Path("/api/users/toggleShowRecentMatchedTags").HandlerFunc(u.toggleShowRecentMatchedTags()).Methods("POST")
-		private.Path("/api/users/addToFavoriteBusinesses").HandlerFunc(u.addToFavoriteBusinesses()).Methods("POST")
+		private.Path("/api/users/removeFromFavoriteBusinesses").
+			HandlerFunc(u.removeFromFavoriteBusinesses()).
+			Methods("POST")
+		private.Path("/api/users/toggleShowRecentMatchedTags").
+			HandlerFunc(u.toggleShowRecentMatchedTags()).
+			Methods("POST")
+		private.Path("/api/users/addToFavoriteBusinesses").
+			HandlerFunc(u.addToFavoriteBusinesses()).
+			Methods("POST")
 	})
 }
 
@@ -106,7 +120,10 @@ func (u *userHandler) registerHandler() func(http.ResponseWriter, *http.Request)
 
 		errorMessages := validator.Register(d)
 		if service.User.UserEmailExists(d.User.Email) {
-			errorMessages = append(errorMessages, "Email address is already registered.")
+			errorMessages = append(
+				errorMessages,
+				"Email address is already registered.",
+			)
 		}
 
 		if viper.GetString("env") == "production" {
@@ -117,7 +134,10 @@ func (u *userHandler) registerHandler() func(http.ResponseWriter, *http.Request)
 		}
 
 		if len(errorMessages) > 0 {
-			l.Logger.Info("RegisterHandler failed", zap.Strings("input invalid", errorMessages))
+			l.Logger.Info(
+				"RegisterHandler failed",
+				zap.Strings("input invalid", errorMessages),
+			)
 			t.Render(w, r, d, errorMessages)
 			return
 		}
@@ -144,7 +164,7 @@ func (u *userHandler) registerHandler() func(http.ResponseWriter, *http.Request)
 			return
 		}
 
-		token, err := jwt.NewJWTManager().GenerateToken(d.User.ID.Hex(), false)
+		token, err := jwt.NewJWTManager().Generate(d.User.ID.Hex(), false)
 		if err != nil {
 			l.Logger.Error("RegisterHandler failed", zap.Error(err))
 			http.Redirect(w, r, "/login", http.StatusFound)
@@ -168,9 +188,15 @@ func (u *userHandler) registerHandler() func(http.ResponseWriter, *http.Request)
 			if !viper.GetBool("receive_signup_notifications") {
 				return
 			}
-			err := email.SendSignupNotification(d.Business.BusinessName, d.User.Email)
+			err := email.SendSignupNotification(
+				d.Business.BusinessName,
+				d.User.Email,
+			)
 			if err != nil {
-				l.Logger.Error("email.SendSignupNotification failed", zap.Error(err))
+				l.Logger.Error(
+					"email.SendSignupNotification failed",
+					zap.Error(err),
+				)
 			}
 		}()
 		go func() {
@@ -222,7 +248,10 @@ func (u *userHandler) loginHandler() func(http.ResponseWriter, *http.Request) {
 		if viper.GetString("env") == "production" {
 			isValid := recaptcha.Verify(*r)
 			if !isValid {
-				l.Logger.Error("UpdateLoginAttempts failed", zap.Strings("errs", recaptcha.Error()))
+				l.Logger.Error(
+					"UpdateLoginAttempts failed",
+					zap.Strings("errs", recaptcha.Error()),
+				)
 				t.Render(w, r, f, recaptcha.Error())
 				return
 			}
@@ -247,23 +276,36 @@ func (u *userHandler) loginHandler() func(http.ResponseWriter, *http.Request) {
 				user, err := service.User.FindByEmail(f.Email)
 				if err != nil {
 					if !e.IsUserNotFound(err) {
-						l.Logger.Error("log.User.LoginFailure failed", zap.Error(err))
+						l.Logger.Error(
+							"log.User.LoginFailure failed",
+							zap.Error(err),
+						)
 					}
 					return
 				}
-				err = service.UserAction.Log(log.User.LoginFailure(user, ip.FromRequest(r)))
+				err = service.UserAction.Log(
+					log.User.LoginFailure(user, ip.FromRequest(r)),
+				)
 				if err != nil {
-					l.Logger.Error("log.User.LoginFailure failed", zap.Error(err))
+					l.Logger.Error(
+						"log.User.LoginFailure failed",
+						zap.Error(err),
+					)
 				}
 			}()
 			return
 		}
 
-		token, err := jwt.NewJWTManager().GenerateToken(user.ID.Hex(), false)
+		token, err := jwt.NewJWTManager().Generate(user.ID.Hex(), false)
 		http.SetCookie(w, cookie.CreateCookie(token))
 
 		// CurrentLoginDate and CurrentLoginIP are the previous informations.
-		flash.Info(w, "You last logged in on "+util.FormatTime(user.CurrentLoginDate)+" from "+user.CurrentLoginIP)
+		flash.Info(
+			w,
+			"You last logged in on "+util.FormatTime(
+				user.CurrentLoginDate,
+			)+" from "+user.CurrentLoginIP,
+		)
 
 		go func() {
 			err := service.User.UpdateLoginInfo(user.ID, ip.FromRequest(r))
@@ -272,13 +314,20 @@ func (u *userHandler) loginHandler() func(http.ResponseWriter, *http.Request) {
 			}
 		}()
 		go func() {
-			err := service.UserAction.Log(log.User.LoginSuccess(user, ip.FromRequest(r)))
+			err := service.UserAction.Log(
+				log.User.LoginSuccess(user, ip.FromRequest(r)),
+			)
 			if err != nil {
 				l.Logger.Error("log.User.LoginSuccess failed", zap.Error(err))
 			}
 		}()
 
-		http.Redirect(w, r, r.URL.Query().Get("redirect_login"), http.StatusFound)
+		http.Redirect(
+			w,
+			r,
+			r.URL.Query().Get("redirect_login"),
+			http.StatusFound,
+		)
 	}
 }
 
@@ -299,7 +348,12 @@ func (u *userHandler) lostPasswordPage() func(http.ResponseWriter, *http.Request
 		RecaptchaSitekey string
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		t.Render(w, r, formData{RecaptchaSitekey: viper.GetString("recaptcha.site_key")}, nil)
+		t.Render(
+			w,
+			r,
+			formData{RecaptchaSitekey: viper.GetString("recaptcha.site_key")},
+			nil,
+		)
 	}
 }
 
@@ -321,7 +375,10 @@ func (u *userHandler) lostPassword() func(http.ResponseWriter, *http.Request) {
 		if viper.GetString("env") == "production" {
 			isValid := recaptcha.Verify(*r)
 			if !isValid {
-				l.Logger.Info("LostPassword failed", zap.Strings("errs", recaptcha.Error()))
+				l.Logger.Info(
+					"LostPassword failed",
+					zap.Strings("errs", recaptcha.Error()),
+				)
 				t.Render(w, r, f, recaptcha.Error())
 				return
 			}
@@ -417,9 +474,15 @@ func (u *userHandler) passwordReset() func(http.ResponseWriter, *http.Request) {
 			ConfirmPassword: r.FormValue("confirm_password"),
 		}
 
-		errorMessages := validator.ValidatePassword(f.Password, f.ConfirmPassword)
+		errorMessages := validator.ValidatePassword(
+			f.Password,
+			f.ConfirmPassword,
+		)
 		if len(errorMessages) > 0 {
-			l.Logger.Error("PasswordReset failed", zap.Strings("input invalid", errorMessages))
+			l.Logger.Error(
+				"PasswordReset failed",
+				zap.Strings("input invalid", errorMessages),
+			)
 			t.Render(w, r, f, errorMessages)
 			return
 		}
@@ -448,7 +511,10 @@ func (u *userHandler) passwordReset() func(http.ResponseWriter, *http.Request) {
 		go func() {
 			user, err := service.User.FindByEmail(lost.Email)
 			if err != nil {
-				l.Logger.Error("BuildChangePasswordAction failed", zap.Error(err))
+				l.Logger.Error(
+					"BuildChangePasswordAction failed",
+					zap.Error(err),
+				)
 				return
 			}
 			service.UserAction.Log(log.User.ChangePassword(user))
@@ -490,7 +556,10 @@ func (u *userHandler) addToFavoriteBusinesses() func(http.ResponseWriter, *http.
 		err := decoder.Decode(&req)
 		if err != nil || req.ID == "" {
 			if err != nil {
-				l.Logger.Error("AppServer AddToFavoriteBusinesses failed", zap.Error(err))
+				l.Logger.Error(
+					"AppServer AddToFavoriteBusinesses failed",
+					zap.Error(err),
+				)
 			} else {
 				l.Logger.Error("AppServer AddToFavoriteBusinesses failed", zap.String("error", "request business id is empty"))
 			}
@@ -500,7 +569,10 @@ func (u *userHandler) addToFavoriteBusinesses() func(http.ResponseWriter, *http.
 		}
 		bID, err := primitive.ObjectIDFromHex(req.ID)
 		if err != nil {
-			l.Logger.Error("AppServer AddToFavoriteBusinesses failed", zap.Error(err))
+			l.Logger.Error(
+				"AppServer AddToFavoriteBusinesses failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Something went wrong. Please try again later."))
 			return
@@ -508,7 +580,10 @@ func (u *userHandler) addToFavoriteBusinesses() func(http.ResponseWriter, *http.
 
 		uID, err := primitive.ObjectIDFromHex(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("AppServer AddToFavoriteBusinesses failed", zap.Error(err))
+			l.Logger.Error(
+				"AppServer AddToFavoriteBusinesses failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Something went wrong. Please try again later."))
 			return
@@ -516,7 +591,10 @@ func (u *userHandler) addToFavoriteBusinesses() func(http.ResponseWriter, *http.
 
 		err = service.User.AddToFavoriteBusinesses(uID, bID)
 		if err != nil {
-			l.Logger.Error("AppServer AddToFavoriteBusinesses failed", zap.Error(err))
+			l.Logger.Error(
+				"AppServer AddToFavoriteBusinesses failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Something went wrong. Please try again later."))
 			return
@@ -536,7 +614,10 @@ func (u *userHandler) removeFromFavoriteBusinesses() func(http.ResponseWriter, *
 		err := decoder.Decode(&req)
 		if err != nil || req.ID == "" {
 			if err != nil {
-				l.Logger.Error("AppServer RemoveFromFavoriteBusinesses failed", zap.Error(err))
+				l.Logger.Error(
+					"AppServer RemoveFromFavoriteBusinesses failed",
+					zap.Error(err),
+				)
 			} else {
 				l.Logger.Error("AppServer RemoveFromFavoriteBusinesses failed", zap.String("error", "request business id is empty"))
 			}
@@ -546,7 +627,10 @@ func (u *userHandler) removeFromFavoriteBusinesses() func(http.ResponseWriter, *
 		}
 		bID, err := primitive.ObjectIDFromHex(req.ID)
 		if err != nil {
-			l.Logger.Error("AppServer RemoveFromFavoriteBusinesses failed", zap.Error(err))
+			l.Logger.Error(
+				"AppServer RemoveFromFavoriteBusinesses failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Something went wrong. Please try again later."))
 			return
@@ -554,7 +638,10 @@ func (u *userHandler) removeFromFavoriteBusinesses() func(http.ResponseWriter, *
 
 		uID, err := primitive.ObjectIDFromHex(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("AppServer RemoveFromFavoriteBusinesses failed", zap.Error(err))
+			l.Logger.Error(
+				"AppServer RemoveFromFavoriteBusinesses failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Something went wrong. Please try again later."))
 			return
@@ -562,7 +649,10 @@ func (u *userHandler) removeFromFavoriteBusinesses() func(http.ResponseWriter, *
 
 		err = service.User.RemoveFromFavoriteBusinesses(uID, bID)
 		if err != nil {
-			l.Logger.Error("AppServer RemoveFromFavoriteBusinesses failed", zap.Error(err))
+			l.Logger.Error(
+				"AppServer RemoveFromFavoriteBusinesses failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Something went wrong. Please try again later."))
 			return

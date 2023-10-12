@@ -11,7 +11,10 @@ type trading struct{}
 
 var Trading = &trading{}
 
-func (t *trading) UpdateBusiness(id primitive.ObjectID, data *types.TradingRegisterData) error {
+func (t *trading) UpdateBusiness(
+	id primitive.ObjectID,
+	data *types.TradingRegisterData,
+) error {
 	err := es.Business.UpdateTradingInfo(id, data)
 	if err != nil {
 		return err
@@ -23,7 +26,10 @@ func (t *trading) UpdateBusiness(id primitive.ObjectID, data *types.TradingRegis
 	return nil
 }
 
-func (t *trading) UpdateUser(id primitive.ObjectID, data *types.TradingRegisterData) error {
+func (t *trading) UpdateUser(
+	id primitive.ObjectID,
+	data *types.TradingRegisterData,
+) error {
 	err := es.User.UpdateTradingInfo(id, data)
 	if err != nil {
 		return err

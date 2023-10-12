@@ -42,10 +42,16 @@ func (a *adminBusinessHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	a.once.Do(func() {
-		adminPrivate.Path("/businesses/{id}").HandlerFunc(a.adminBusinessPage()).Methods("GET")
-		adminPrivate.Path("/businesses/{id}").HandlerFunc(a.updateBusiness()).Methods("POST")
+		adminPrivate.Path("/businesses/{id}").
+			HandlerFunc(a.adminBusinessPage()).
+			Methods("GET")
+		adminPrivate.Path("/businesses/{id}").
+			HandlerFunc(a.updateBusiness()).
+			Methods("POST")
 
-		adminPrivate.Path("/api/businesses/{id}").HandlerFunc(a.deleteBusiness()).Methods("DELETE")
+		adminPrivate.Path("/api/businesses/{id}").
+			HandlerFunc(a.deleteBusiness()).
+			Methods("DELETE")
 	})
 }
 
@@ -97,12 +103,18 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 		errorMessages := validator.UpdateBusiness(d.Business)
 		maxPosBal, err := strconv.ParseFloat(r.FormValue("max_pos_bal"), 64)
 		if err != nil {
-			errorMessages = append(errorMessages, "Max pos balance should be a number")
+			errorMessages = append(
+				errorMessages,
+				"Max pos balance should be a number",
+			)
 		}
 		d.Balance.MaxPosBal = math.Abs(maxPosBal)
 		maxNegBal, err := strconv.ParseFloat(r.FormValue("max_neg_bal"), 64)
 		if err != nil {
-			errorMessages = append(errorMessages, "Max neg balance should be a number")
+			errorMessages = append(
+				errorMessages,
+				"Max neg balance should be a number",
+			)
 		}
 		if math.Abs(maxNegBal) == 0 {
 			d.Balance.MaxNegBal = 0
@@ -118,10 +130,22 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 			return
 		}
 		if account.Balance > d.Balance.MaxPosBal {
-			errorMessages = append(errorMessages, "The current account balance ("+fmt.Sprintf("%.2f", account.Balance)+") has exceed your max pos balance input")
+			errorMessages = append(
+				errorMessages,
+				"The current account balance ("+fmt.Sprintf(
+					"%.2f",
+					account.Balance,
+				)+") has exceed your max pos balance input",
+			)
 		}
 		if account.Balance < -math.Abs(d.Balance.MaxNegBal) {
-			errorMessages = append(errorMessages, "The current account balance ("+fmt.Sprintf("%.2f", account.Balance)+") has exceed your max neg balance input")
+			errorMessages = append(
+				errorMessages,
+				"The current account balance ("+fmt.Sprintf(
+					"%.2f",
+					account.Balance,
+				)+") has exceed your max neg balance input",
+			)
 		}
 		if len(errorMessages) > 0 {
 			l.Logger.Error("UpdateBusiness failed", zap.Error(err))
@@ -136,10 +160,16 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 			t.Error(w, r, d, err)
 			return
 		}
-		offersAdded, offersRemoved := helper.TagDifference(d.Business.Offers, oldBusiness.Offers)
+		offersAdded, offersRemoved := helper.TagDifference(
+			d.Business.Offers,
+			oldBusiness.Offers,
+		)
 		d.Business.OffersAdded = offersAdded
 		d.Business.OffersRemoved = offersRemoved
-		wantsAdded, wantsRemoved := helper.TagDifference(d.Business.Wants, oldBusiness.Wants)
+		wantsAdded, wantsRemoved := helper.TagDifference(
+			d.Business.Wants,
+			oldBusiness.Wants,
+		)
 		d.Business.WantsAdded = wantsAdded
 		d.Business.WantsRemoved = wantsRemoved
 		err = service.Business.UpdateBusiness(bID, d.Business, true)
@@ -156,7 +186,11 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 			t.Error(w, r, d, err)
 			return
 		}
-		err = service.BalanceLimit.Update(account.ID, d.Balance.MaxPosBal, d.Balance.MaxNegBal)
+		err = service.BalanceLimit.Update(
+			account.ID,
+			d.Balance.MaxPosBal,
+			d.Balance.MaxNegBal,
+		)
 		if err != nil {
 			l.Logger.Error("UpdateBusiness failed", zap.Error(err))
 			t.Error(w, r, d, err)
@@ -175,12 +209,27 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 			adminUser, err := service.AdminUser.FindByID(objID)
 			user, err := service.User.FindByBusinessID(bID)
 			if err != nil {
-				l.Logger.Error("log.Admin.ModifyBusiness failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.ModifyBusiness failed",
+					zap.Error(err),
+				)
 				return
 			}
-			err = service.UserAction.Log(log.Admin.ModifyBusiness(adminUser, user, oldBusiness, d.Business, oldBalance, d.Balance))
+			err = service.UserAction.Log(
+				log.Admin.ModifyBusiness(
+					adminUser,
+					user,
+					oldBusiness,
+					d.Business,
+					oldBalance,
+					d.Balance,
+				),
+			)
 			if err != nil {
-				l.Logger.Error("log.Admin.ModifyBusiness failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.ModifyBusiness failed",
+					zap.Error(err),
+				)
 			}
 		}()
 
@@ -190,21 +239,33 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 		// 	2. When the business is in accepted status.
 		//	   - only update added tags.
 		go func() {
-			if !util.IsAcceptedStatus(oldBusiness.Status) && util.IsAcceptedStatus(d.Business.Status) {
-				err := service.Business.UpdateAllTagsCreatedAt(oldBusiness.ID, time.Now())
+			if !util.IsAcceptedStatus(oldBusiness.Status) &&
+				util.IsAcceptedStatus(d.Business.Status) {
+				err := service.Business.UpdateAllTagsCreatedAt(
+					oldBusiness.ID,
+					time.Now(),
+				)
 				if err != nil {
-					l.Logger.Error("UpdateAllTagsCreatedAt failed", zap.Error(err))
+					l.Logger.Error(
+						"UpdateAllTagsCreatedAt failed",
+						zap.Error(err),
+					)
 				}
-				err = TagHandler.SaveOfferTags(helper.GetTagNames(d.Business.Offers))
+				err = TagHandler.SaveOfferTags(
+					helper.GetTagNames(d.Business.Offers),
+				)
 				if err != nil {
 					l.Logger.Error("saveOfferTags failed", zap.Error(err))
 				}
-				err = TagHandler.SaveWantTags(helper.GetTagNames(d.Business.Wants))
+				err = TagHandler.SaveWantTags(
+					helper.GetTagNames(d.Business.Wants),
+				)
 				if err != nil {
 					l.Logger.Error("saveWantTags failed", zap.Error(err))
 				}
 			}
-			if util.IsAcceptedStatus(oldBusiness.Status) && util.IsAcceptedStatus(d.Business.Status) {
+			if util.IsAcceptedStatus(oldBusiness.Status) &&
+				util.IsAcceptedStatus(d.Business.Status) {
 				err := TagHandler.SaveOfferTags(d.Business.OffersAdded)
 				if err != nil {
 					l.Logger.Error("saveOfferTags failed", zap.Error(err))
@@ -217,7 +278,9 @@ func (a *adminBusinessHandler) updateBusiness() func(http.ResponseWriter, *http.
 		}()
 		go func() {
 			// Set timestamp when first trading status applied.
-			if oldBusiness.MemberStartedAt.IsZero() && (oldBusiness.Status == constant.Business.Accepted) && (d.Business.Status == constant.Trading.Accepted) {
+			if oldBusiness.MemberStartedAt.IsZero() &&
+				(oldBusiness.Status == constant.Business.Accepted) &&
+				(d.Business.Status == constant.Trading.Accepted) {
 				service.Business.SetMemberStartedAt(bID)
 			}
 		}()

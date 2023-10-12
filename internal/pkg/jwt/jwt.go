@@ -8,6 +8,7 @@ import (
 	"time"
 
 	jwtlib "github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 // JWTManager manages JWT operations.
@@ -18,8 +19,8 @@ type JWTManager struct {
 
 // NewJWTManager initializes and returns a new JWTManager instance.
 func NewJWTManager() *JWTManager {
-	privateKeyPEM := os.Getenv("jwt.private_key")
-	publicKeyPEM := os.Getenv("jwt.public_key")
+	privateKeyPEM := getEnvOrFallback("jwt.private_key", "JWT_PRIVATE_KEY")
+	publicKeyPEM := getEnvOrFallback("jwt.public_key", "JWT_PUBLIC_KEY")
 
 	signKey, err := jwtlib.ParseRSAPrivateKeyFromPEM([]byte(privateKeyPEM))
 	if err != nil {
@@ -44,7 +45,7 @@ type userClaims struct {
 }
 
 // GenerateToken generates a JWT token for a user.
-func (jm *JWTManager) GenerateToken(
+func (jm *JWTManager) Generate(
 	userID string,
 	isAdmin bool,
 ) (string, error) {
@@ -60,8 +61,8 @@ func (jm *JWTManager) GenerateToken(
 	return token.SignedString(jm.signKey)
 }
 
-// ValidateToken validates a JWT token and returns the associated claims.
-func (jm *JWTManager) ValidateToken(tokenString string) (*userClaims, error) {
+// Validate validates a JWT token and returns the associated claims.
+func (jm *JWTManager) Validate(tokenString string) (*userClaims, error) {
 	claims := &userClaims{}
 	token, err := jwtlib.ParseWithClaims(
 		tokenString,
@@ -80,4 +81,15 @@ func (jm *JWTManager) ValidateToken(tokenString string) (*userClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func getEnvOrFallback(viperKey, envKey string) string {
+	value := viper.GetString(viperKey)
+	if value == "" {
+		value = os.Getenv(viperKey)
+	}
+	if value == "" {
+		value = os.Getenv(envKey)
+	}
+	return value
 }

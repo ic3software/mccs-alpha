@@ -59,7 +59,9 @@ func (t *tag) UpdateOffer(name string) (primitive.ObjectID, error) {
 		context.Background(),
 		filter,
 		update,
-		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+		options.FindOneAndUpdate().
+			SetUpsert(true).
+			SetReturnDocument(options.After),
 	)
 	if res.Err() != nil {
 		return primitive.ObjectID{}, res.Err()
@@ -89,7 +91,9 @@ func (t *tag) UpdateWant(name string) (primitive.ObjectID, error) {
 		context.Background(),
 		filter,
 		update,
-		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+		options.FindOneAndUpdate().
+			SetUpsert(true).
+			SetReturnDocument(options.After),
 	)
 	if res.Err() != nil {
 		return primitive.ObjectID{}, res.Err()

@@ -37,7 +37,9 @@ func registerCollections(db *mongo.Database) {
 func New() *mongo.Database {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("mongo.url")))
+	client, err := mongo.NewClient(
+		options.Client().ApplyURI(viper.GetString("mongo.url")),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

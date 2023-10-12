@@ -71,10 +71,10 @@ func TestJWT(t *testing.T) {
 			t.Setenv("jwt.public_key", TEST_PUBLIC_KEY)
 			j := jwt.NewJWTManager()
 
-			token, err := j.GenerateToken(tt.userID, tt.isAdmin)
+			token, err := j.Generate(tt.userID, tt.isAdmin)
 			require.NoError(t, err)
 
-			claims, err := j.ValidateToken(token)
+			claims, err := j.Validate(token)
 			require.NoError(t, err)
 
 			require.Equal(t, tt.userID, claims.UserID)

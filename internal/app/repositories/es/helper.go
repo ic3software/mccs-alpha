@@ -16,22 +16,41 @@ func newFuzzyWildcardQuery(name, text string) *elastic.BoolQuery {
 }
 
 // Should match one of the three queries. (MatchQuery, WildcardQuery, RegexpQuery)
-func newFuzzyWildcardTimeQueryForTag(tagField, tagName string, createdOnOrAfter time.Time) *elastic.NestedQuery {
+func newFuzzyWildcardTimeQueryForTag(
+	tagField, tagName string,
+	createdOnOrAfter time.Time,
+) *elastic.NestedQuery {
 	q := elastic.NewBoolQuery()
 
 	qq := elastic.NewBoolQuery()
-	qq.Must((elastic.NewMatchQuery(tagField+".name", tagName).Fuzziness("auto").Boost(2)))
-	qq.Must(elastic.NewRangeQuery(tagField + ".createdAt").Gte(createdOnOrAfter))
+	qq.Must(
+		(elastic.NewMatchQuery(tagField+".name", tagName).Fuzziness("auto").Boost(2)),
+	)
+	qq.Must(
+		elastic.NewRangeQuery(tagField + ".createdAt").Gte(createdOnOrAfter),
+	)
 	q.Should(qq)
 
 	qq = elastic.NewBoolQuery()
-	qq.Must(elastic.NewWildcardQuery(tagField+".name", strings.ToLower(tagName)+"*").Boost(1.5))
-	qq.Must(elastic.NewRangeQuery(tagField + ".createdAt").Gte(createdOnOrAfter))
+	qq.Must(
+		elastic.NewWildcardQuery(tagField+".name", strings.ToLower(tagName)+"*").
+			Boost(1.5),
+	)
+	qq.Must(
+		elastic.NewRangeQuery(tagField + ".createdAt").Gte(createdOnOrAfter),
+	)
 	q.Should(qq)
 
 	qq = elastic.NewBoolQuery()
-	qq.Must(elastic.NewRegexpQuery(tagField+".name", ".*"+strings.ToLower(tagName)+".*"))
-	qq.Must(elastic.NewRangeQuery(tagField + ".createdAt").Gte(createdOnOrAfter))
+	qq.Must(
+		elastic.NewRegexpQuery(
+			tagField+".name",
+			".*"+strings.ToLower(tagName)+".*",
+		),
+	)
+	qq.Must(
+		elastic.NewRangeQuery(tagField + ".createdAt").Gte(createdOnOrAfter),
+	)
 	q.Should(qq)
 
 	nestedQ := elastic.NewNestedQuery(tagField, q)
@@ -40,7 +59,11 @@ func newFuzzyWildcardTimeQueryForTag(tagField, tagName string, createdOnOrAfter 
 }
 
 // Should match one of the three queries. (MatchQuery, WildcardQuery, RegexpQuery)
-func newTagQuery(tag string, lastLoginDate time.Time, timeField string) *elastic.BoolQuery {
+func newTagQuery(
+	tag string,
+	lastLoginDate time.Time,
+	timeField string,
+) *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
 
 	// The default value for both offerAddedAt and wantAddedAt is 0001-01-01T00:00:00.000+0000.

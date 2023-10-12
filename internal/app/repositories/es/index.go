@@ -25,7 +25,9 @@ func checkIndex(client *elastic.Client, index string) {
 		return
 	}
 
-	createIndex, err := client.CreateIndex(index).BodyString(indexMappings[index]).Do(ctx)
+	createIndex, err := client.CreateIndex(index).
+		BodyString(indexMappings[index]).
+		Do(ctx)
 	if err != nil {
 		panic(err)
 	}

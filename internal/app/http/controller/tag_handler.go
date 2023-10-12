@@ -38,12 +38,22 @@ func (h *tagHandler) RegisterRoutes(
 ) {
 	h.once.Do(func() {
 		adminPrivate.Path("/user-tags").HandlerFunc(h.tagPage()).Methods("GET")
-		adminPrivate.Path("/user-tags/search").HandlerFunc(h.searchTags()).Methods("GET")
+		adminPrivate.Path("/user-tags/search").
+			HandlerFunc(h.searchTags()).
+			Methods("GET")
 
-		public.Path("/api/tags/{tagName}").HandlerFunc(h.getTagSuggestions()).Methods("GET")
-		adminPrivate.Path("/api/user-tags").HandlerFunc(h.createTag()).Methods("POST")
-		adminPrivate.Path("/api/user-tags/{id}").HandlerFunc(h.renameTag()).Methods("PUT")
-		adminPrivate.Path("/api/user-tags/{id}").HandlerFunc(h.deleteTag()).Methods("DELETE")
+		public.Path("/api/tags/{tagName}").
+			HandlerFunc(h.getTagSuggestions()).
+			Methods("GET")
+		adminPrivate.Path("/api/user-tags").
+			HandlerFunc(h.createTag()).
+			Methods("POST")
+		adminPrivate.Path("/api/user-tags/{id}").
+			HandlerFunc(h.renameTag()).
+			Methods("PUT")
+		adminPrivate.Path("/api/user-tags/{id}").
+			HandlerFunc(h.deleteTag()).
+			Methods("DELETE")
 	})
 }
 
@@ -175,7 +185,9 @@ func (h *tagHandler) createTag() func(http.ResponseWriter, *http.Request) {
 				l.Logger.Error("log.Admin.CreateTag failed", zap.Error(err))
 				return
 			}
-			err = service.UserAction.Log(log.Admin.CreateTag(adminUser, tagName))
+			err = service.UserAction.Log(
+				log.Admin.CreateTag(adminUser, tagName),
+			)
 			if err != nil {
 				l.Logger.Error("log.Admin.CreateTag failed", zap.Error(err))
 			}
@@ -300,7 +312,9 @@ func (h *tagHandler) renameTag() func(http.ResponseWriter, *http.Request) {
 				l.Logger.Error("log.Admin.ModifyTag failed", zap.Error(err))
 				return
 			}
-			err = service.UserAction.Log(log.Admin.ModifyTag(adminUser, oldName, req.Name))
+			err = service.UserAction.Log(
+				log.Admin.ModifyTag(adminUser, oldName, req.Name),
+			)
 			if err != nil {
 				l.Logger.Error("log.Admin.ModifyTag failed", zap.Error(err))
 			}
@@ -348,7 +362,9 @@ func (h *tagHandler) deleteTag() func(http.ResponseWriter, *http.Request) {
 				l.Logger.Error("log.Admin.DeleteTag failed", zap.Error(err))
 				return
 			}
-			err = service.UserAction.Log(log.Admin.DeleteTag(adminUser, tag.Name))
+			err = service.UserAction.Log(
+				log.Admin.DeleteTag(adminUser, tag.Name),
+			)
 			if err != nil {
 				l.Logger.Error("log.Admin.DeleteTag failed", zap.Error(err))
 			}

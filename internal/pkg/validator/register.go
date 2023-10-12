@@ -16,8 +16,12 @@ func ValidateBusiness(b *types.BusinessData) []string {
 	} else if len(b.BusinessName) > 100 {
 		errs = append(errs, "Business Name cannot exceed 100 characters.")
 	}
-	if b.Website != "" && !strings.HasPrefix(b.Website, "http://") && !strings.HasPrefix(b.Website, "https://") {
-		errs = append(errs, "Website URL should start with http:// or https://.")
+	if b.Website != "" && !strings.HasPrefix(b.Website, "http://") &&
+		!strings.HasPrefix(b.Website, "https://") {
+		errs = append(
+			errs,
+			"Website URL should start with http:// or https://.",
+		)
 	} else if len(b.Website) > 100 {
 		errs = append(errs, "Website URL cannot exceed 100 characters.")
 	}

@@ -37,7 +37,8 @@ func createEmailWorker(u *types.User) func() {
 			l.Logger.Error("dailyemail failed", zap.Error(err))
 			return
 		}
-		if len(matchedTags.MatchedOffers) == 0 && len(matchedTags.MatchedWants) == 0 {
+		if len(matchedTags.MatchedOffers) == 0 &&
+			len(matchedTags.MatchedWants) == 0 {
 			return
 		}
 		err = email.SendDailyEmailList(u, matchedTags)
@@ -57,11 +58,17 @@ func getMatchTags(user *types.User) (*types.MatchedTags, error) {
 		return nil, e.Wrap(err, "getMatchTags failed")
 	}
 
-	matchedOffers, err := service.Tag.MatchOffers(helper.GetTagNames(business.Offers), user.LastNotificationSentDate)
+	matchedOffers, err := service.Tag.MatchOffers(
+		helper.GetTagNames(business.Offers),
+		user.LastNotificationSentDate,
+	)
 	if err != nil {
 		return nil, e.Wrap(err, "getMatchTags failed")
 	}
-	matchedWants, err := service.Tag.MatchWants(helper.GetTagNames(business.Wants), user.LastNotificationSentDate)
+	matchedWants, err := service.Tag.MatchWants(
+		helper.GetTagNames(business.Wants),
+		user.LastNotificationSentDate,
+	)
 	if err != nil {
 		return nil, e.Wrap(err, "getMatchTags failed")
 	}

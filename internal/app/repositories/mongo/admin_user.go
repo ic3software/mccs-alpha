@@ -54,7 +54,9 @@ func (a *adminUser) FindByID(id primitive.ObjectID) (*types.AdminUser, error) {
 	return &adminUser, nil
 }
 
-func (a *adminUser) GetLoginInfo(id primitive.ObjectID) (*types.LoginInfo, error) {
+func (a *adminUser) GetLoginInfo(
+	id primitive.ObjectID,
+) (*types.LoginInfo, error) {
 	loginInfo := &types.LoginInfo{}
 	filter := bson.M{"_id": id}
 	projection := bson.M{
@@ -65,14 +67,18 @@ func (a *adminUser) GetLoginInfo(id primitive.ObjectID) (*types.LoginInfo, error
 	}
 	findOneOptions := options.FindOne()
 	findOneOptions.SetProjection(projection)
-	err := a.c.FindOne(context.Background(), filter, findOneOptions).Decode(&loginInfo)
+	err := a.c.FindOne(context.Background(), filter, findOneOptions).
+		Decode(&loginInfo)
 	if err != nil {
 		return nil, e.Wrap(err, "AdminUserMongo GetLoginInfo failed")
 	}
 	return loginInfo, nil
 }
 
-func (a *adminUser) UpdateLoginInfo(id primitive.ObjectID, i *types.LoginInfo) error {
+func (a *adminUser) UpdateLoginInfo(
+	id primitive.ObjectID,
+	i *types.LoginInfo,
+) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{
 		"currentLoginIP":   i.CurrentLoginIP,

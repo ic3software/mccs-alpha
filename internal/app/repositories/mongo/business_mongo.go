@@ -6,8 +6,8 @@ import (
 
 	"github.com/ic3network/mccs-alpha/global/constant"
 	"github.com/ic3network/mccs-alpha/internal/app/types"
-	"github.com/ic3network/mccs-alpha/internal/pkg/helper"
 	"github.com/ic3network/mccs-alpha/internal/pkg/e"
+	"github.com/ic3network/mccs-alpha/internal/pkg/helper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,7 +37,10 @@ func (b *business) FindByID(id primitive.ObjectID) (*types.Business, error) {
 	return &business, nil
 }
 
-func (b *business) UpdateTradingInfo(id primitive.ObjectID, data *types.TradingRegisterData) error {
+func (b *business) UpdateTradingInfo(
+	id primitive.ObjectID,
+	data *types.TradingRegisterData,
+) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{
 		"businessName":       data.BusinessName,
@@ -120,7 +123,9 @@ func (b *business) UpdateBusiness(
 
 	var writes []mongo.WriteModel
 	for _, upd := range updates {
-		model := mongo.NewUpdateOneModel().SetFilter(bson.M{"_id": id}).SetUpdate(upd)
+		model := mongo.NewUpdateOneModel().
+			SetFilter(bson.M{"_id": id}).
+			SetUpdate(upd)
 		writes = append(writes, model)
 	}
 
@@ -148,7 +153,9 @@ func (b *business) SetMemberStartedAt(id primitive.ObjectID) error {
 }
 
 // Create creates a business record in the table.
-func (b *business) Create(data *types.BusinessData) (primitive.ObjectID, error) {
+func (b *business) Create(
+	data *types.BusinessData,
+) (primitive.ObjectID, error) {
 	doc := bson.M{
 		"businessName":       data.BusinessName,
 		"businessPhone":      data.BusinessPhone,
@@ -174,7 +181,10 @@ func (b *business) Create(data *types.BusinessData) (primitive.ObjectID, error) 
 	return res.InsertedID.(primitive.ObjectID), nil
 }
 
-func (b *business) UpdateAllTagsCreatedAt(id primitive.ObjectID, t time.Time) error {
+func (b *business) UpdateAllTagsCreatedAt(
+	id primitive.ObjectID,
+	t time.Time,
+) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{
 		"offers.$[].createdAt": t,

@@ -33,7 +33,10 @@ func New() *Email {
 	e := new(Email)
 	e.serverAddr = viper.GetString("url")
 	// Always send from MCCS
-	e.from = mail.NewEmail(viper.GetString("email_from"), viper.GetString("sendgrid.sender_email"))
+	e.from = mail.NewEmail(
+		viper.GetString("email_from"),
+		viper.GetString("sendgrid.sender_email"),
+	)
 	e.client = sendgrid.NewSendClient(viper.GetString("sendgrid.key"))
 	return e
 }
@@ -165,7 +168,12 @@ func (e *Email) sendNewMemberSignupEmail(businessName, email string) error {
 func SendResetEmail(receiver string, email string, token string) error {
 	return e.sendResetEmail(receiver, email, token)
 }
-func (e *Email) sendResetEmail(receiver string, email string, token string) error {
+
+func (e *Email) sendResetEmail(
+	receiver string,
+	email string,
+	token string,
+) error {
 	text := "Your password reset link is: " + e.serverAddr + "/password-resets/" + token
 	d := emailData{
 		receiver:      receiver,
@@ -182,10 +190,17 @@ func (e *Email) sendResetEmail(receiver string, email string, token string) erro
 }
 
 // SendDailyEmailList sends the matching tags for a user.
-func SendDailyEmailList(user *types.User, matchedTags *types.MatchedTags) error {
+func SendDailyEmailList(
+	user *types.User,
+	matchedTags *types.MatchedTags,
+) error {
 	return e.sendDailyEmailList(user, matchedTags)
 }
-func (e *Email) sendDailyEmailList(user *types.User, matchedTags *types.MatchedTags) error {
+
+func (e *Email) sendDailyEmailList(
+	user *types.User,
+	matchedTags *types.MatchedTags,
+) error {
 	t, err := template.NewEmailView("dailyEmail")
 	if err != nil {
 		return err
@@ -224,10 +239,21 @@ func (e *Email) sendDailyEmailList(user *types.User, matchedTags *types.MatchedT
 }
 
 // SendContactBusiness sends the contact to the business owner.
-func SendContactBusiness(receiver, receiverEmail, replyToName, replyToEmail, body string) error {
-	return e.sendContactBusiness(receiver, receiverEmail, replyToName, replyToEmail, body)
+func SendContactBusiness(
+	receiver, receiverEmail, replyToName, replyToEmail, body string,
+) error {
+	return e.sendContactBusiness(
+		receiver,
+		receiverEmail,
+		replyToName,
+		replyToEmail,
+		body,
+	)
 }
-func (e *Email) sendContactBusiness(receiver, receiverEmail, replyToName, replyToEmail, body string) error {
+
+func (e *Email) sendContactBusiness(
+	receiver, receiverEmail, replyToName, replyToEmail, body string,
+) error {
 	d := emailData{
 		receiver:      receiver,
 		receiverEmail: receiverEmail,
@@ -267,7 +293,11 @@ func (e *Email) sendContactBusiness(receiver, receiverEmail, replyToName, replyT
 func SendSignupNotification(businessName string, contactEmail string) error {
 	return e.sendSignupNotification(businessName, contactEmail)
 }
-func (e *Email) sendSignupNotification(businessName string, contactEmail string) error {
+
+func (e *Email) sendSignupNotification(
+	businessName string,
+	contactEmail string,
+) error {
 	body := "Business Name: " + businessName + ", Contact Email: " + contactEmail
 	d := emailData{
 		receiver:      viper.GetString("email_from"),

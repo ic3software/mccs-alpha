@@ -40,15 +40,31 @@ func (b *businessHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	b.once.Do(func() {
-		public.Path("/businesses").HandlerFunc(b.searchBusinessPage()).Methods("GET")
-		public.Path("/businesses/search").HandlerFunc(b.searchBusiness()).Methods("GET")
-		public.Path("/businessPage/{id}").HandlerFunc(b.businessPage()).Methods("GET")
-		private.Path("/businesses/search/match-tags").HandlerFunc(b.searhMatchTags()).Methods("GET")
+		public.Path("/businesses").
+			HandlerFunc(b.searchBusinessPage()).
+			Methods("GET")
+		public.Path("/businesses/search").
+			HandlerFunc(b.searchBusiness()).
+			Methods("GET")
+		public.Path("/businessPage/{id}").
+			HandlerFunc(b.businessPage()).
+			Methods("GET")
+		private.Path("/businesses/search/match-tags").
+			HandlerFunc(b.searhMatchTags()).
+			Methods("GET")
 
-		private.Path("/api/businessStatus").HandlerFunc(b.businessStatus()).Methods("GET")
-		private.Path("/api/getBusinessName").HandlerFunc(b.getBusinessName()).Methods("GET")
-		private.Path("/api/tradingMemberStatus").HandlerFunc(b.tradingMemberStatus()).Methods("GET")
-		private.Path("/api/contactBusiness").HandlerFunc(b.contactBusiness()).Methods("POST")
+		private.Path("/api/businessStatus").
+			HandlerFunc(b.businessStatus()).
+			Methods("GET")
+		private.Path("/api/getBusinessName").
+			HandlerFunc(b.getBusinessName()).
+			Methods("GET")
+		private.Path("/api/tradingMemberStatus").
+			HandlerFunc(b.tradingMemberStatus()).
+			Methods("GET")
+		private.Path("/api/contactBusiness").
+			HandlerFunc(b.contactBusiness()).
+			Methods("POST")
 	})
 }
 
@@ -114,7 +130,9 @@ func (b *businessHandler) searchBusinessPage() func(http.ResponseWriter, *http.R
 			t.Error(w, r, nil, err)
 			return
 		}
-		res := searchBusinessResponse{Categories: helper.GetAdminTagNames(adminTags)}
+		res := searchBusinessResponse{
+			Categories: helper.GetAdminTagNames(adminTags),
+		}
 		_, err = UserHandler.FindByID(r.Header.Get("userID"))
 		if err != nil {
 			res.IsUserLoggedIn = false
@@ -266,7 +284,13 @@ func (b *businessHandler) contactBusiness() func(http.ResponseWriter, *http.Requ
 
 		receiver := businessOwner.FirstName + " " + businessOwner.LastName
 		replyToName := user.FirstName + " " + user.LastName
-		err = email.SendContactBusiness(receiver, businessOwner.Email, replyToName, user.Email, req.Body)
+		err = email.SendContactBusiness(
+			receiver,
+			businessOwner.Email,
+			replyToName,
+			user.Email,
+			req.Body,
+		)
 		if err != nil {
 			l.Logger.Error("ContactBusiness failed", zap.Error(err))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -280,7 +304,12 @@ func (b *businessHandler) contactBusiness() func(http.ResponseWriter, *http.Requ
 
 func (b *businessHandler) searhMatchTags() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/businesses/search?"+r.URL.Query().Encode(), http.StatusFound)
+		http.Redirect(
+			w,
+			r,
+			"/businesses/search?"+r.URL.Query().Encode(),
+			http.StatusFound,
+		)
 	}
 }
 
@@ -297,13 +326,19 @@ func (b *businessHandler) businessStatus() func(http.ResponseWriter, *http.Reque
 		if q.Get("business_id") != "" {
 			objID, err := primitive.ObjectIDFromHex(q.Get("business_id"))
 			if err != nil {
-				l.Logger.Error("BusinessHandler.businessStatus failed", zap.Error(err))
+				l.Logger.Error(
+					"BusinessHandler.businessStatus failed",
+					zap.Error(err),
+				)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			business, err = service.Business.FindByID(objID)
 			if err != nil {
-				l.Logger.Error("BusinessHandler.businessStatus failed", zap.Error(err))
+				l.Logger.Error(
+					"BusinessHandler.businessStatus failed",
+					zap.Error(err),
+				)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -319,7 +354,10 @@ func (b *businessHandler) businessStatus() func(http.ResponseWriter, *http.Reque
 		res := &response{Status: business.Status}
 		js, err := json.Marshal(res)
 		if err != nil {
-			l.Logger.Error("BusinessHandler.businessStatus failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.businessStatus failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -338,14 +376,20 @@ func (b *businessHandler) getBusinessName() func(http.ResponseWriter, *http.Requ
 
 		user, err := service.User.FindByEmail(q.Get("email"))
 		if err != nil {
-			l.Logger.Error("BusinessHandler.getBusinessName failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.getBusinessName failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		business, err := service.Business.FindByID(user.CompanyID)
 		if err != nil {
-			l.Logger.Error("BusinessHandler.getBusinessName failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.getBusinessName failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -353,7 +397,10 @@ func (b *businessHandler) getBusinessName() func(http.ResponseWriter, *http.Requ
 		res := response{Name: business.BusinessName}
 		js, err := json.Marshal(res)
 		if err != nil {
-			l.Logger.Error("BusinessHandler.getBusinessName failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.getBusinessName failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -373,21 +420,30 @@ func (b *businessHandler) tradingMemberStatus() func(http.ResponseWriter, *http.
 
 		objID, err := primitive.ObjectIDFromHex(q.Get("business_id"))
 		if err != nil {
-			l.Logger.Error("BusinessHandler.tradingMemberStatus failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.tradingMemberStatus failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		other, err := service.Business.FindByID(objID)
 		if err != nil {
-			l.Logger.Error("BusinessHandler.tradingMemberStatus failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.tradingMemberStatus failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		self, err := BusinessHandler.FindByUserID(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("BusinessHandler.tradingMemberStatus failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.tradingMemberStatus failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -401,7 +457,10 @@ func (b *businessHandler) tradingMemberStatus() func(http.ResponseWriter, *http.
 		}
 		js, err := json.Marshal(res)
 		if err != nil {
-			l.Logger.Error("BusinessHandler.tradingMemberStatus failed", zap.Error(err))
+			l.Logger.Error(
+				"BusinessHandler.tradingMemberStatus failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

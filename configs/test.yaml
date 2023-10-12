@@ -46,5 +46,10 @@ sendgrid:
   sender_email: xxx
 
 recaptcha:
-  site_key: xxx
-  secret_key: xxx
+  # For reCAPTCHA v2, use the following test keys.
+  # You will always get No CAPTCHA and all verification requests will pass.
+  # The reCAPTCHA widget will show a warning message to ensure it's not used
+  # for production traffic.
+  site_key: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+  secret_key: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+

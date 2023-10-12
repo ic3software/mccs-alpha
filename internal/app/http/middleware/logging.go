@@ -21,7 +21,9 @@ func Logging() mux.MiddlewareFunc {
 			defer func() {
 				uri := r.RequestURI
 				// Skip for the health check and static requests.
-				if uri == "/health" || uri == "/ram" || uri == "/cpu" || uri == "/disk" || strings.HasPrefix(uri, "/static") {
+				if uri == "/health" || uri == "/ram" || uri == "/cpu" ||
+					uri == "/disk" ||
+					strings.HasPrefix(uri, "/static") {
 					return
 				}
 				elapse := time.Now().Sub(startTime)

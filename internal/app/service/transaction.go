@@ -15,7 +15,10 @@ type transaction struct{}
 // Transaction services.
 var Transaction = &transaction{}
 
-func (t *transaction) maxBalanceCanBeTransferred(a *types.Account, kind string) (float64, error) {
+func (t *transaction) maxBalanceCanBeTransferred(
+	a *types.Account,
+	kind string,
+) (float64, error) {
 	if kind == "positive" {
 		maxPosBal, err := BalanceLimit.GetMaxPosBalance(a.ID)
 		if err != nil {
@@ -74,7 +77,12 @@ func (t *transaction) Propose(
 		if err != nil {
 			return nil, e.Wrap(err, "service.Transaction.Propose")
 		}
-		return nil, e.CustomMessage("Sender will exceed its credit limit." + " The maximum amount that can be sent is: " + fmt.Sprintf("%.2f", amount))
+		return nil, e.CustomMessage(
+			"Sender will exceed its credit limit." + " The maximum amount that can be sent is: " + fmt.Sprintf(
+				"%.2f",
+				amount,
+			),
+		)
 	}
 	exceed, err = BalanceLimit.IsExceedLimit(to.ID, to.Balance+amount)
 	if err != nil {
@@ -85,7 +93,12 @@ func (t *transaction) Propose(
 		if err != nil {
 			return nil, e.Wrap(err, "service.Transaction.Propose")
 		}
-		return nil, e.CustomMessage("Receiver will exceed its maximum balance limit." + " The maximum amount that can be received is: " + fmt.Sprintf("%.2f", amount))
+		return nil, e.CustomMessage(
+			"Receiver will exceed its maximum balance limit." + " The maximum amount that can be received is: " + fmt.Sprintf(
+				"%.2f",
+				amount,
+			),
+		)
 	}
 
 	transaction, err := pg.Transaction.Propose(
@@ -113,7 +126,9 @@ func (t *transaction) Find(transactionID uint) (*types.Transaction, error) {
 	return transaction, nil
 }
 
-func (t *transaction) FindPendings(accountID uint) ([]*types.Transaction, error) {
+func (t *transaction) FindPendings(
+	accountID uint,
+) ([]*types.Transaction, error) {
 	transactions, err := pg.Transaction.FindPendings(accountID)
 	if err != nil {
 		return nil, err
@@ -155,8 +170,18 @@ func (t *transaction) FindRecent(accountID uint) ([]*types.Transaction, error) {
 	return transactions, nil
 }
 
-func (t *transaction) FindInRange(accountID uint, dateFrom time.Time, dateTo time.Time, page int) ([]*types.Transaction, int, error) {
-	transactions, totalPages, err := pg.Transaction.FindInRange(accountID, dateFrom, dateTo, page)
+func (t *transaction) FindInRange(
+	accountID uint,
+	dateFrom time.Time,
+	dateTo time.Time,
+	page int,
+) ([]*types.Transaction, int, error) {
+	transactions, totalPages, err := pg.Transaction.FindInRange(
+		accountID,
+		dateFrom,
+		dateTo,
+		page,
+	)
 	if err != nil {
 		return nil, 0, err
 	}

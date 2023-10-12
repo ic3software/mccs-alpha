@@ -18,7 +18,7 @@ func GetLoggedInUser() mux.MiddlewareFunc {
 				return
 			}
 			mccsToken := cookie.Value
-			claims, err := jwt.NewJWTManager().ValidateToken(mccsToken)
+			claims, err := jwt.NewJWTManager().Validate(mccsToken)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return
@@ -39,7 +39,12 @@ func RequireUser() mux.MiddlewareFunc {
 			// 	2. If it's on the other page, redirect to the targeting page after logging in.
 			if userID == "" {
 				if url.QueryEscape(r.URL.String()) == url.QueryEscape("/") {
-					http.Redirect(w, r, "/businesses/search?page=1", http.StatusFound)
+					http.Redirect(
+						w,
+						r,
+						"/businesses/search?page=1",
+						http.StatusFound,
+					)
 				} else {
 					http.Redirect(w, r, "/login?redirect_login="+url.QueryEscape(r.URL.String()), http.StatusFound)
 				}

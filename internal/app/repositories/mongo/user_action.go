@@ -41,10 +41,16 @@ func (u *userAction) Log(a *types.UserAction) error {
 	return nil
 }
 
-func (u *userAction) Find(c *types.UserActionSearchCriteria, page int64) ([]*types.UserAction, int, error) {
+func (u *userAction) Find(
+	c *types.UserActionSearchCriteria,
+	page int64,
+) ([]*types.UserAction, int, error) {
 	ctx := context.Background()
 	if page < 0 || page == 0 {
-		return nil, 0, e.New(e.InvalidPageNumber, "mongo.userAction.Find failed")
+		return nil, 0, e.New(
+			e.InvalidPageNumber,
+			"mongo.userAction.Find failed",
+		)
 	}
 
 	var results []*types.UserAction

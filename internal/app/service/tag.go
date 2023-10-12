@@ -102,7 +102,10 @@ func (t *tag) DeleteByID(id primitive.ObjectID) error {
 
 // MatchOffers loops through user's offers and finds out the matched wants.
 // Only add to the result when matches more than one tag.
-func (t *tag) MatchOffers(offers []string, lastLoginDate time.Time) (map[string][]string, error) {
+func (t *tag) MatchOffers(
+	offers []string,
+	lastLoginDate time.Time,
+) (map[string][]string, error) {
 	resultMap := make(map[string][]string, len(offers))
 
 	for _, offer := range offers {
@@ -120,7 +123,10 @@ func (t *tag) MatchOffers(offers []string, lastLoginDate time.Time) (map[string]
 
 // MatchWants loops through user's wants and finds out the matched offers.
 // Only add to the result when matches more than one tag.
-func (t *tag) MatchWants(wants []string, lastLoginDate time.Time) (map[string][]string, error) {
+func (t *tag) MatchWants(
+	wants []string,
+	lastLoginDate time.Time,
+) (map[string][]string, error) {
 	resultMap := make(map[string][]string, len(wants))
 
 	for _, want := range wants {

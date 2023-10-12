@@ -28,7 +28,12 @@ func Validate(password string) []string {
 	}
 
 	if len(password) < minLen {
-		messages = append(messages, "Password must be at least "+strconv.Itoa(minLen)+" characters long.")
+		messages = append(
+			messages,
+			"Password must be at least "+strconv.Itoa(
+				minLen,
+			)+" characters long.",
+		)
 	} else if len(password) > 100 {
 		messages = append(messages, "Password cannot exceed 100 characters.")
 	}
@@ -36,10 +41,16 @@ func Validate(password string) []string {
 		messages = append(messages, "Password must have at least one letter.")
 	}
 	if !hasNumber {
-		messages = append(messages, "Password must have at least one numeric value.")
+		messages = append(
+			messages,
+			"Password must have at least one numeric value.",
+		)
 	}
 	if !hasSpecial {
-		messages = append(messages, "Password must have at least one special character.")
+		messages = append(
+			messages,
+			"Password must have at least one special character.",
+		)
 	}
 
 	return messages

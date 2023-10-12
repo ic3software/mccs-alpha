@@ -55,13 +55,18 @@ func (b balanceLimit) IsExceedLimit(id uint, balance float64) (bool, error) {
 		return false, e.Wrap(err, "service.BalanceLimit.FindByAccountID failed")
 	}
 	// MaxNegBal should be positive in the DB.
-	if balance < -(math.Abs(balanceLimitRecord.MaxNegBal)) || balance > balanceLimitRecord.MaxPosBal {
+	if balance < -(math.Abs(balanceLimitRecord.MaxNegBal)) ||
+		balance > balanceLimitRecord.MaxPosBal {
 		return true, nil
 	}
 	return false, nil
 }
 
-func (b balanceLimit) Update(id uint, maxPosBal float64, maxNegBal float64) error {
+func (b balanceLimit) Update(
+	id uint,
+	maxPosBal float64,
+	maxNegBal float64,
+) error {
 	err := pg.BalanceLimit.Update(id, maxPosBal, maxNegBal)
 	if err != nil {
 		return err

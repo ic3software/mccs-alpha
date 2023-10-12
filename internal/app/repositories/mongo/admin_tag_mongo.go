@@ -31,7 +31,9 @@ func (a *adminTag) Create(name string) error {
 	}
 
 	filter := bson.M{"name": name}
-	update := bson.M{"$setOnInsert": bson.M{"name": name, "createdAt": time.Now()}}
+	update := bson.M{
+		"$setOnInsert": bson.M{"name": name, "createdAt": time.Now()},
+	}
 	_, err := a.c.UpdateOne(
 		context.Background(),
 		filter,
@@ -67,7 +69,10 @@ func (a *adminTag) FindByID(id primitive.ObjectID) (*types.AdminTag, error) {
 	return &adminTag, nil
 }
 
-func (a *adminTag) FindTags(name string, page int64) (*types.FindAdminTagResult, error) {
+func (a *adminTag) FindTags(
+	name string,
+	page int64,
+) (*types.FindAdminTagResult, error) {
 	if page < 0 || page == 0 {
 		return nil, e.New(e.InvalidPageNumber, "AdminTagMongo FindTags failed")
 	}

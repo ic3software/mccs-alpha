@@ -30,14 +30,18 @@ func GetUpdateData(r *http.Request) *types.UpdateAccountData {
 func GetBusiness(r *http.Request) *types.BusinessData {
 	turnover, _ := strconv.Atoi(r.FormValue("turnover"))
 	b := &types.BusinessData{
-		BusinessName:       r.FormValue("business_name"),        // 100 chars
-		IncType:            r.FormValue("inc_type"),             // 25 chars
-		CompanyNumber:      r.FormValue("company_number"),       // 20 chars
-		BusinessPhone:      r.FormValue("business_phone"),       // 25 chars
-		Website:            r.FormValue("website"),              // 100 chars
-		Turnover:           turnover,                            // 20 chars
-		Offers:             GetTags(r.FormValue("offers")),      // 500 chars (max 50 chars per tag)
-		Wants:              GetTags(r.FormValue("wants")),       // 500 chars (max 50 chars per tag)
+		BusinessName:  r.FormValue("business_name"),  // 100 chars
+		IncType:       r.FormValue("inc_type"),       // 25 chars
+		CompanyNumber: r.FormValue("company_number"), // 20 chars
+		BusinessPhone: r.FormValue("business_phone"), // 25 chars
+		Website:       r.FormValue("website"),        // 100 chars
+		Turnover:      turnover,                      // 20 chars
+		Offers: GetTags(
+			r.FormValue("offers"),
+		), // 500 chars (max 50 chars per tag)
+		Wants: GetTags(
+			r.FormValue("wants"),
+		), // 500 chars (max 50 chars per tag)
 		Description:        r.FormValue("description"),          // 500 chars
 		LocationAddress:    r.FormValue("location_address"),     // 255 chars
 		LocationCity:       r.FormValue("location_city"),        // 50 chars

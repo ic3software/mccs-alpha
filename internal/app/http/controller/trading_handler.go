@@ -37,10 +37,14 @@ func (th *tradingHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	th.once.Do(func() {
-		private.Path("/member-signup").HandlerFunc(th.signupPage()).Methods("GET")
+		private.Path("/member-signup").
+			HandlerFunc(th.signupPage()).
+			Methods("GET")
 		private.Path("/member-signup").HandlerFunc(th.signup()).Methods("POST")
 
-		private.Path("/api/is-trading-member").HandlerFunc(th.isMember()).Methods("GET")
+		private.Path("/api/is-trading-member").
+			HandlerFunc(th.isMember()).
+			Methods("GET")
 	})
 }
 
@@ -96,7 +100,10 @@ func (th *tradingHandler) signup() func(http.ResponseWriter, *http.Request) {
 			}
 		}
 		if len(errorMessages) > 0 {
-			l.Logger.Info("TradingHandler.Signup failed", zap.Strings("input invalid", errorMessages))
+			l.Logger.Info(
+				"TradingHandler.Signup failed",
+				zap.Strings("input invalid", errorMessages),
+			)
 			t.Render(w, r, data, errorMessages)
 			return
 		}
@@ -131,7 +138,11 @@ func (th *tradingHandler) signup() func(http.ResponseWriter, *http.Request) {
 
 		// Send thank you email to the User's email address.
 		go func() {
-			err := email.SendThankYouEmail(data.FirstName, data.LastName, user.Email)
+			err := email.SendThankYouEmail(
+				data.FirstName,
+				data.LastName,
+				user.Email,
+			)
 			if err != nil {
 				l.Logger.Error("email.SendThankYouEmail failed", zap.Error(err))
 			}
@@ -140,7 +151,10 @@ func (th *tradingHandler) signup() func(http.ResponseWriter, *http.Request) {
 		go func() {
 			err := email.SendNewMemberSignupEmail(data.BusinessName, user.Email)
 			if err != nil {
-				l.Logger.Error("email.SendNewMemberSignupEmail failed", zap.Error(err))
+				l.Logger.Error(
+					"email.SendNewMemberSignupEmail failed",
+					zap.Error(err),
+				)
 			}
 		}()
 

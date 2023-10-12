@@ -69,7 +69,12 @@ func (u *user) Login(email string, password string) (*types.User, error) {
 		return &types.User{}, e.Wrap(err, "login user failed")
 	}
 
-	if time.Now().Sub(user.LastLoginFailDate).Seconds() <= viper.GetFloat64("login_attempts_timeout") {
+	if time.Now().
+		Sub(user.LastLoginFailDate).
+		Seconds() <=
+		viper.GetFloat64(
+			"login_attempts_timeout",
+		) {
 		return &types.User{}, e.New(e.AccountLocked, "")
 	}
 
@@ -90,7 +95,10 @@ func (u *user) UserEmailExists(email string) bool {
 	return true
 }
 
-func (u *user) FindUsers(user *types.User, page int64) (*types.FindUserResult, error) {
+func (u *user) FindUsers(
+	user *types.User,
+	page int64,
+) (*types.FindUserResult, error) {
 	ids, numberOfResults, totalPages, err := es.User.Find(user, page)
 	if err != nil {
 		return nil, e.Wrap(err, "UserService FindUsers failed")
@@ -236,7 +244,9 @@ func (u *user) ToggleShowRecentMatchedTags(id primitive.ObjectID) error {
 	return nil
 }
 
-func (u *user) AddToFavoriteBusinesses(uID, businessID primitive.ObjectID) error {
+func (u *user) AddToFavoriteBusinesses(
+	uID, businessID primitive.ObjectID,
+) error {
 	err := mongo.User.AddToFavoriteBusinesses(uID, businessID)
 	if err != nil {
 		return e.Wrap(err, "UserService AddToFavoriteBusinesses failed")
@@ -244,7 +254,9 @@ func (u *user) AddToFavoriteBusinesses(uID, businessID primitive.ObjectID) error
 	return nil
 }
 
-func (u *user) RemoveFromFavoriteBusinesses(uID, businessID primitive.ObjectID) error {
+func (u *user) RemoveFromFavoriteBusinesses(
+	uID, businessID primitive.ObjectID,
+) error {
 	err := mongo.User.RemoveFromFavoriteBusinesses(uID, businessID)
 	if err != nil {
 		return e.Wrap(err, "UserService RemoveFromFavoriteBusinesses failed")

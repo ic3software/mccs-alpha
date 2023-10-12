@@ -16,7 +16,11 @@ func Recover() mux.MiddlewareFunc {
 				if err := recover(); err != nil {
 					buf := make([]byte, 1024)
 					runtime.Stack(buf, false)
-					l.Logger.Error("recover, error", zap.Any("err", err), zap.ByteString("method", buf))
+					l.Logger.Error(
+						"recover, error",
+						zap.Any("err", err),
+						zap.ByteString("method", buf),
+					)
 				}
 			}()
 			next.ServeHTTP(w, r)
