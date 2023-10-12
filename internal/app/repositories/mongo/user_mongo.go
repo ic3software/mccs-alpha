@@ -68,7 +68,10 @@ func (u *user) FindByBusinessID(id primitive.ObjectID) (*types.User, error) {
 	return &user, nil
 }
 
-func (u *user) UpdateTradingInfo(id primitive.ObjectID, data *types.TradingRegisterData) error {
+func (u *user) UpdateTradingInfo(
+	id primitive.ObjectID,
+	data *types.TradingRegisterData,
+) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{
 		"firstName": data.FirstName,
@@ -176,7 +179,9 @@ func (u *user) FindByIDs(ids []string) ([]*types.User, error) {
 
 func (u *user) UpdatePassword(user *types.User) error {
 	filter := bson.M{"_id": user.ID}
-	update := bson.M{"$set": bson.M{"password": user.Password, "updatedAt": time.Now()}}
+	update := bson.M{
+		"$set": bson.M{"password": user.Password, "updatedAt": time.Now()},
+	}
 	_, err := u.c.UpdateOne(
 		context.Background(),
 		filter,
@@ -234,7 +239,11 @@ func (u *user) AdminUpdateUser(user *types.User) error {
 	return nil
 }
 
-func (u *user) UpdateLoginAttempts(email string, attempts int, lockUser bool) error {
+func (u *user) UpdateLoginAttempts(
+	email string,
+	attempts int,
+	lockUser bool,
+) error {
 	filter := bson.M{"email": email}
 	set := bson.M{
 		"loginAttempts": attempts,
@@ -266,14 +275,18 @@ func (u *user) GetLoginInfo(id primitive.ObjectID) (*types.LoginInfo, error) {
 	}
 	findOneOptions := options.FindOne()
 	findOneOptions.SetProjection(projection)
-	err := u.c.FindOne(context.Background(), filter, findOneOptions).Decode(&loginInfo)
+	err := u.c.FindOne(context.Background(), filter, findOneOptions).
+		Decode(&loginInfo)
 	if err != nil {
 		return nil, e.Wrap(err, "UserMongo GetLoginInfo failed")
 	}
 	return loginInfo, nil
 }
 
-func (u *user) UpdateLoginInfo(id primitive.ObjectID, i *types.LoginInfo) error {
+func (u *user) UpdateLoginInfo(
+	id primitive.ObjectID,
+	i *types.LoginInfo,
+) error {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": bson.M{
 		"currentLoginIP":           i.CurrentLoginIP,
@@ -339,13 +352,16 @@ func (u *user) ToggleShowRecentMatchedTags(id primitive.ObjectID) error {
 	projection := bson.M{"showRecentMatchedTags": 1}
 	findOneOptions := options.FindOne()
 	findOneOptions.SetProjection(projection)
-	err := u.c.FindOne(context.Background(), filter, findOneOptions).Decode(&res)
+	err := u.c.FindOne(context.Background(), filter, findOneOptions).
+		Decode(&res)
 	if err != nil {
 		return e.Wrap(err, "UserMongo ToggleShowRecentMatchedTags failed")
 	}
 
 	filter = bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"showRecentMatchedTags": !res.ShowRecentMatchedTags}}
+	update := bson.M{
+		"$set": bson.M{"showRecentMatchedTags": !res.ShowRecentMatchedTags},
+	}
 	_, err = u.c.UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return e.Wrap(err, "UserMongo ToggleShowRecentMatchedTags failed")

@@ -28,7 +28,10 @@ func Run() {
 	if sum != 0.0 {
 		err := email.Balance.NonZeroBalance(from, to)
 		if err != nil {
-			l.Logger.Error("sending NonZeroBalance email failed", zap.Error(err))
+			l.Logger.Error(
+				"sending NonZeroBalance email failed",
+				zap.Error(err),
+			)
 		}
 	}
 }

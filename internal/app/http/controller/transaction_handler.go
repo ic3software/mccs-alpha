@@ -44,22 +44,45 @@ func (tr *transactionHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	tr.once.Do(func() {
-		private.Path("/transaction").HandlerFunc(tr.proposeTransactionPage()).Methods("GET")
-		private.Path("/transaction").HandlerFunc(tr.proposeTransaction()).Methods("POST")
-		private.Path("/transaction/cancelPropose").HandlerFunc(tr.cancelPropose()).Methods("GET")
+		private.Path("/transaction").
+			HandlerFunc(tr.proposeTransactionPage()).
+			Methods("GET")
+		private.Path("/transaction").
+			HandlerFunc(tr.proposeTransaction()).
+			Methods("POST")
+		private.Path("/transaction/cancelPropose").
+			HandlerFunc(tr.cancelPropose()).
+			Methods("GET")
 
-		private.Path("/pending_transactions").HandlerFunc(tr.pendingTransactionsPage()).Methods("GET")
+		private.Path("/pending_transactions").
+			HandlerFunc(tr.pendingTransactionsPage()).
+			Methods("GET")
 
-		private.Path("/api/accountBalance").HandlerFunc(tr.getBalance()).Methods("GET")
-		private.Path("/api/pendingTransactions").HandlerFunc(tr.pendingTransactions()).Methods("GET")
-		private.Path("/api/acceptTransaction").HandlerFunc(tr.acceptTransaction()).Methods("POST")
-		private.Path("/api/cancelTransaction").HandlerFunc(tr.cancelTransaction()).Methods("POST")
-		private.Path("/api/rejectTransaction").HandlerFunc(tr.rejectTransaction()).Methods("POST")
-		private.Path("/api/recentTransactions").HandlerFunc(tr.recentTransactions()).Methods("GET")
+		private.Path("/api/accountBalance").
+			HandlerFunc(tr.getBalance()).
+			Methods("GET")
+		private.Path("/api/pendingTransactions").
+			HandlerFunc(tr.pendingTransactions()).
+			Methods("GET")
+		private.Path("/api/acceptTransaction").
+			HandlerFunc(tr.acceptTransaction()).
+			Methods("POST")
+		private.Path("/api/cancelTransaction").
+			HandlerFunc(tr.cancelTransaction()).
+			Methods("POST")
+		private.Path("/api/rejectTransaction").
+			HandlerFunc(tr.rejectTransaction()).
+			Methods("POST")
+		private.Path("/api/recentTransactions").
+			HandlerFunc(tr.recentTransactions()).
+			Methods("GET")
 	})
 }
 
-func (tr *transactionHandler) getMaxNegBal(r *http.Request, res *response) error {
+func (tr *transactionHandler) getMaxNegBal(
+	r *http.Request,
+	res *response,
+) error {
 	// Get the user max negative balance.
 	account, err := AccountHandler.FindByUserID(r.Header.Get("userID"))
 	if err != nil {
@@ -191,12 +214,19 @@ func (tr *transactionHandler) proposeTransaction() func(http.ResponseWriter, *ht
 		// Validate the user inputs.
 		errorMessages := []string{}
 		if !util.IsValidEmail(f.Email) {
-			errorMessages = append(errorMessages, "Please enter a valid email address.")
+			errorMessages = append(
+				errorMessages,
+				"Please enter a valid email address.",
+			)
 		}
 		amount, err := strconv.ParseFloat(r.FormValue("amount"), 64)
 		// Amount should be positive value and with up to two decimal places.
-		if err != nil || amount <= 0 || !util.IsDecimalValid(r.FormValue("amount")) {
-			errorMessages = append(errorMessages, "Please enter a valid numeric amount to send with up to two decimal places.")
+		if err != nil || amount <= 0 ||
+			!util.IsDecimalValid(r.FormValue("amount")) {
+			errorMessages = append(
+				errorMessages,
+				"Please enter a valid numeric amount to send with up to two decimal places.",
+			)
 		}
 		res.FormData.Amount = amount
 		if len(errorMessages) > 0 {
@@ -235,13 +265,25 @@ func (tr *transactionHandler) proposeTransaction() func(http.ResponseWriter, *ht
 		// Only allow transfers with accounts that also have "trading-accepted" status
 		if (proposeInfo.FromStatus != constant.Trading.Accepted) ||
 			(proposeInfo.ToStatus != constant.Trading.Accepted) {
-			t.Render(w, r, res, []string{"Recipient is not a trading member. You can only make transfers to other businesses that have trading member status."})
+			t.Render(
+				w,
+				r,
+				res,
+				[]string{
+					"Recipient is not a trading member. You can only make transfers to other businesses that have trading member status.",
+				},
+			)
 			return
 		}
 
 		// Check if the user is doing the transaction to himself.
 		if proposeInfo.FromID == proposeInfo.ToID {
-			t.Render(w, r, res, []string{"You cannot create a transaction with yourself."})
+			t.Render(
+				w,
+				r,
+				res,
+				[]string{"You cannot create a transaction with yourself."},
+			)
 			return
 		}
 
@@ -261,7 +303,13 @@ func (tr *transactionHandler) proposeTransaction() func(http.ResponseWriter, *ht
 			t.Error(w, r, res, err)
 			return
 		}
-		flash.Success(w, "You have proposed a transfer of "+fmt.Sprintf("%.2f", f.Amount)+" Credits with "+f.Email)
+		flash.Success(
+			w,
+			"You have proposed a transfer of "+fmt.Sprintf(
+				"%.2f",
+				f.Amount,
+			)+" Credits with "+f.Email,
+		)
 		http.Redirect(w, r, "/#transactions", http.StatusFound)
 
 		go func() {
@@ -279,7 +327,10 @@ func (tr *transactionHandler) proposeTransaction() func(http.ResponseWriter, *ht
 		go func() {
 			err := email.Transaction.Initiate(f.Type, transaction)
 			if err != nil {
-				l.Logger.Error("email.Transaction.Initiate failed", zap.Error(err))
+				l.Logger.Error(
+					"email.Transaction.Initiate failed",
+					zap.Error(err),
+				)
 			}
 		}()
 	}
@@ -310,13 +361,19 @@ func (tr *transactionHandler) pendingTransactions() func(http.ResponseWriter, *h
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := AccountHandler.FindByUserID(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("TransferHandler.pendingTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.pendingTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		transactions, err := service.Transaction.FindPendings(account.ID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.pendingTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.pendingTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -334,13 +391,19 @@ func (tr *transactionHandler) recentTransactions() func(http.ResponseWriter, *ht
 	return func(w http.ResponseWriter, r *http.Request) {
 		account, err := AccountHandler.FindByUserID(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("TransferHandler.recentTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.recentTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		transactions, err := service.Transaction.FindRecent(account.ID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.recentTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.recentTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -351,13 +414,20 @@ func (tr *transactionHandler) recentTransactions() func(http.ResponseWriter, *ht
 	}
 }
 
-func (tr *transactionHandler) isInitiatedStatus(w http.ResponseWriter, t *types.Transaction) (bool, error) {
+func (tr *transactionHandler) isInitiatedStatus(
+	w http.ResponseWriter,
+	t *types.Transaction,
+) (bool, error) {
 	type response struct {
 		Error string `json:"error"`
 	}
 
 	if t.Status == constant.Transaction.Completed {
-		js, err := json.Marshal(response{Error: "The transaction has already been completed by the counterparty."})
+		js, err := json.Marshal(
+			response{
+				Error: "The transaction has already been completed by the counterparty.",
+			},
+		)
 		if err != nil {
 			return false, err
 		}
@@ -387,27 +457,39 @@ func (tr *transactionHandler) cancelTransaction() func(http.ResponseWriter, *htt
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		account, err := AccountHandler.FindByUserID(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		transaction, err := service.Transaction.Find(req.TransactionID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		shouldContinue, err := tr.isInitiatedStatus(w, transaction)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -416,13 +498,19 @@ func (tr *transactionHandler) cancelTransaction() func(http.ResponseWriter, *htt
 		}
 
 		if account.ID != transaction.InitiatedBy {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		err = service.Transaction.Cancel(req.TransactionID, req.Reason)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -431,7 +519,10 @@ func (tr *transactionHandler) cancelTransaction() func(http.ResponseWriter, *htt
 		go func() {
 			err := email.Transaction.Cancel(transaction, req.Reason)
 			if err != nil {
-				l.Logger.Error("email.Transaction.Cancel failed", zap.Error(err))
+				l.Logger.Error(
+					"email.Transaction.Cancel failed",
+					zap.Error(err),
+				)
 			}
 		}()
 	}
@@ -447,21 +538,30 @@ func (tr *transactionHandler) rejectTransaction() func(http.ResponseWriter, *htt
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
-			l.Logger.Error("TransferHandler.rejectTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.rejectTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		transaction, err := service.Transaction.Find(req.TransactionID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		shouldContinue, err := tr.isInitiatedStatus(w, transaction)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -471,7 +571,10 @@ func (tr *transactionHandler) rejectTransaction() func(http.ResponseWriter, *htt
 
 		err = service.Transaction.Cancel(req.TransactionID, req.Reason)
 		if err != nil {
-			l.Logger.Error("TransferHandler.rejectTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.rejectTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -480,7 +583,10 @@ func (tr *transactionHandler) rejectTransaction() func(http.ResponseWriter, *htt
 		go func() {
 			err := email.Transaction.Reject(transaction)
 			if err != nil {
-				l.Logger.Error("email.Transaction.Reject failed", zap.Error(err))
+				l.Logger.Error(
+					"email.Transaction.Reject failed",
+					zap.Error(err),
+				)
 			}
 		}()
 	}
@@ -495,21 +601,30 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
-			l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		transaction, err := service.Transaction.Find(req.TransactionID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		shouldContinue, err := tr.isInitiatedStatus(w, transaction)
 		if err != nil {
-			l.Logger.Error("TransferHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -519,21 +634,33 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 
 		from, err := service.Account.FindByID(transaction.FromID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		to, err := service.Account.FindByID(transaction.ToID)
 		if err != nil {
-			l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		// Check the account balance.
-		exceed, err := service.BalanceLimit.IsExceedLimit(from.ID, from.Balance-transaction.Amount)
+		exceed, err := service.BalanceLimit.IsExceedLimit(
+			from.ID,
+			from.Balance-transaction.Amount,
+		)
 		if err != nil {
-			l.Logger.Info("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Info(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -541,7 +668,10 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 			reason := "The sender will exceed its credit limit so this transaction has been cancelled."
 			err = service.Transaction.Cancel(req.TransactionID, reason)
 			if err != nil {
-				l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+				l.Logger.Error(
+					"TransferHandler.acceptTransaction failed",
+					zap.Error(err),
+				)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -550,14 +680,23 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 			go func() {
 				err := email.Transaction.CancelBySystem(transaction, reason)
 				if err != nil {
-					l.Logger.Error("email.Transaction.Cancel failed", zap.Error(err))
+					l.Logger.Error(
+						"email.Transaction.Cancel failed",
+						zap.Error(err),
+					)
 				}
 			}()
 			return
 		}
-		exceed, err = service.BalanceLimit.IsExceedLimit(to.ID, to.Balance+transaction.Amount)
+		exceed, err = service.BalanceLimit.IsExceedLimit(
+			to.ID,
+			to.Balance+transaction.Amount,
+		)
 		if err != nil {
-			l.Logger.Info("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Info(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -565,7 +704,10 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 			reason := "The recipient will exceed its maximum positive balance threshold so this transaction has been cancelled."
 			err = service.Transaction.Cancel(req.TransactionID, reason)
 			if err != nil {
-				l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+				l.Logger.Error(
+					"TransferHandler.acceptTransaction failed",
+					zap.Error(err),
+				)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -574,15 +716,26 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 			go func() {
 				err := email.Transaction.CancelBySystem(transaction, reason)
 				if err != nil {
-					l.Logger.Error("email.Transaction.Cancel failed", zap.Error(err))
+					l.Logger.Error(
+						"email.Transaction.Cancel failed",
+						zap.Error(err),
+					)
 				}
 			}()
 			return
 		}
 
-		err = service.Transaction.Accept(transaction.ID, from.ID, to.ID, transaction.Amount)
+		err = service.Transaction.Accept(
+			transaction.ID,
+			from.ID,
+			to.ID,
+			transaction.Amount,
+		)
 		if err != nil {
-			l.Logger.Error("TransferHandler.acceptTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"TransferHandler.acceptTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -591,7 +744,10 @@ func (tr *transactionHandler) acceptTransaction() func(http.ResponseWriter, *htt
 		go func() {
 			err := email.Transaction.Accept(transaction)
 			if err != nil {
-				l.Logger.Error("email.Transaction.Accept failed", zap.Error(err))
+				l.Logger.Error(
+					"email.Transaction.Accept failed",
+					zap.Error(err),
+				)
 			}
 		}()
 	}

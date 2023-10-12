@@ -28,7 +28,10 @@ func (es *business) Register(client *elastic.Client) {
 	es.index = "businesses"
 }
 
-func (es *business) Create(id primitive.ObjectID, data *types.BusinessData) error {
+func (es *business) Create(
+	id primitive.ObjectID,
+	data *types.BusinessData,
+) error {
 	body := types.BusinessESRecord{
 		BusinessID:      id.Hex(),
 		BusinessName:    data.BusinessName,
@@ -67,8 +70,14 @@ func matchTags(q *elastic.BoolQuery, c *types.SearchCriteria) {
 		// weighted is used to make sure the tags are shown in order.
 		weighted := 2.0
 		for _, o := range c.Tags {
-			qq.Should(newFuzzyWildcardTimeQueryForTag("offers", o.Name, c.CreatedOnOrAfter).
-				Boost(weighted))
+			qq.Should(
+				newFuzzyWildcardTimeQueryForTag(
+					"offers",
+					o.Name,
+					c.CreatedOnOrAfter,
+				).
+					Boost(weighted),
+			)
 			weighted *= 0.9
 		}
 		// Must match one of the "Should" queries.
@@ -87,7 +96,10 @@ func matchTags(q *elastic.BoolQuery, c *types.SearchCriteria) {
 	}
 }
 
-func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, int, error) {
+func (es *business) Find(
+	c *types.SearchCriteria,
+	page int64,
+) ([]string, int, int, error) {
 	if page < 0 || page == 0 {
 		return nil, 0, 0, e.New(e.InvalidPageNumber, "find business failed")
 	}
@@ -101,7 +113,8 @@ func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, in
 	q.Should(elastic.NewMatchQuery("status", constant.Trading.Accepted))
 
 	if c.ShowUserFavoritesOnly {
-		idQuery := elastic.NewIdsQuery().Ids(util.ToIDStrings(c.FavoriteBusinesses)...)
+		idQuery := elastic.NewIdsQuery().
+			Ids(util.ToIDStrings(c.FavoriteBusinesses)...)
 		q.Must(idQuery)
 	}
 
@@ -149,7 +162,10 @@ func (es *business) Find(c *types.SearchCriteria, page int64) ([]string, int, in
 	return ids, int(numberOfResults), totalPages, nil
 }
 
-func (es *business) UpdateBusiness(id primitive.ObjectID, data *types.BusinessData) error {
+func (es *business) UpdateBusiness(
+	id primitive.ObjectID,
+	data *types.BusinessData,
+) error {
 	params := map[string]interface{}{
 		"businessName":    data.BusinessName,
 		"locationCity":    data.LocationCity,
@@ -223,7 +239,10 @@ func (es *business) UpdateBusiness(id primitive.ObjectID, data *types.BusinessDa
 	return nil
 }
 
-func (es *business) UpdateTradingInfo(id primitive.ObjectID, data *types.TradingRegisterData) error {
+func (es *business) UpdateTradingInfo(
+	id primitive.ObjectID,
+	data *types.TradingRegisterData,
+) error {
 	doc := map[string]interface{}{
 		"businessName":    data.BusinessName,
 		"locationCity":    data.LocationCity,
@@ -241,7 +260,10 @@ func (es *business) UpdateTradingInfo(id primitive.ObjectID, data *types.Trading
 	return nil
 }
 
-func (es *business) UpdateAllTagsCreatedAt(id primitive.ObjectID, t time.Time) error {
+func (es *business) UpdateAllTagsCreatedAt(
+	id primitive.ObjectID,
+	t time.Time,
+) error {
 	params := map[string]interface{}{
 		"createdAt": t,
 	}

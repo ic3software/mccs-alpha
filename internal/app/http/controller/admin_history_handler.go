@@ -33,7 +33,9 @@ func (h *adminHistoryHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	h.once.Do(func() {
-		adminPrivate.Path("/history/{id}").HandlerFunc(h.historyPage()).Methods("GET")
+		adminPrivate.Path("/history/{id}").
+			HandlerFunc(h.historyPage()).
+			Methods("GET")
 	})
 }
 
@@ -59,7 +61,10 @@ func (h *adminHistoryHandler) historyPage() func(http.ResponseWriter, *http.Requ
 
 		page, err := strconv.Atoi(q.Get("page"))
 		if err != nil {
-			l.Logger.Error("controller.AdminHistory.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.AdminHistory.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}
@@ -71,7 +76,10 @@ func (h *adminHistoryHandler) historyPage() func(http.ResponseWriter, *http.Requ
 		}
 		user, err := UserHandler.FindByBusinessID(bID)
 		if err != nil {
-			l.Logger.Error("controller.AdminHistory.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.AdminHistory.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}
@@ -80,7 +88,10 @@ func (h *adminHistoryHandler) historyPage() func(http.ResponseWriter, *http.Requ
 		// Get the account balance.
 		account, err := service.Account.FindByBusinessID(bID)
 		if err != nil {
-			l.Logger.Error("controller.AdminHistory.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.AdminHistory.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}
@@ -94,7 +105,10 @@ func (h *adminHistoryHandler) historyPage() func(http.ResponseWriter, *http.Requ
 			page,
 		)
 		if err != nil {
-			l.Logger.Error("controller.AdminHistory.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.AdminHistory.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}

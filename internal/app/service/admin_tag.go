@@ -35,7 +35,10 @@ func (a *adminTag) FindByID(id primitive.ObjectID) (*types.AdminTag, error) {
 	return adminTag, nil
 }
 
-func (a *adminTag) FindTags(name string, page int64) (*types.FindAdminTagResult, error) {
+func (a *adminTag) FindTags(
+	name string,
+	page int64,
+) (*types.FindAdminTagResult, error) {
 	result, err := mongo.AdminTag.FindTags(name, page)
 	if err != nil {
 		return nil, e.Wrap(err, "AdminTagService FindTags failed")

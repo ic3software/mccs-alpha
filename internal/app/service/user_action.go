@@ -21,7 +21,10 @@ func (u *userAction) Log(log *types.UserAction) error {
 	return nil
 }
 
-func (u *userAction) Find(c *types.UserActionSearchCriteria, page int64) ([]*types.UserAction, int, error) {
+func (u *userAction) Find(
+	c *types.UserActionSearchCriteria,
+	page int64,
+) ([]*types.UserAction, int, error) {
 	userActions, totalPages, err := mongo.UserAction.Find(c, page)
 	if err != nil {
 		return nil, 0, e.Wrap(err, "UserActionService Find failed")

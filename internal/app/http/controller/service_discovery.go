@@ -73,7 +73,15 @@ func (s *serviceDiscovery) diskCheck(w http.ResponseWriter, r *http.Request) {
 		text = "WARNING"
 	}
 
-	message := fmt.Sprintf("%s - Free space: %dMB (%dGB) / %dMB (%dGB) | Used: %d%%", text, usedMB, usedGB, totalMB, totalGB, usedPercent)
+	message := fmt.Sprintf(
+		"%s - Free space: %dMB (%dGB) / %dMB (%dGB) | Used: %d%%",
+		text,
+		usedMB,
+		usedGB,
+		totalMB,
+		totalGB,
+		usedPercent,
+	)
 	w.WriteHeader(status)
 	w.Write([]byte("\n" + message))
 }
@@ -98,7 +106,14 @@ func (s *serviceDiscovery) cpuCheck(w http.ResponseWriter, r *http.Request) {
 		text = "WARNING"
 	}
 
-	message := fmt.Sprintf("%s - Load average: %.2f, %.2f, %.2f | Cores: %d", text, l1, l5, l15, cores)
+	message := fmt.Sprintf(
+		"%s - Load average: %.2f, %.2f, %.2f | Cores: %d",
+		text,
+		l1,
+		l5,
+		l15,
+		cores,
+	)
 	w.WriteHeader(status)
 	w.Write([]byte("\n" + message))
 }
@@ -124,7 +139,15 @@ func (s *serviceDiscovery) ramCheck(w http.ResponseWriter, r *http.Request) {
 		text = "WARNING"
 	}
 
-	message := fmt.Sprintf("%s - Free space: %dMB (%dGB) / %dMB (%dGB) | Used: %d%%", text, usedMB, usedGB, totalMB, totalGB, usedPercent)
+	message := fmt.Sprintf(
+		"%s - Free space: %dMB (%dGB) / %dMB (%dGB) | Used: %d%%",
+		text,
+		usedMB,
+		usedGB,
+		totalMB,
+		totalGB,
+		usedPercent,
+	)
 	w.WriteHeader(status)
 	w.Write([]byte("\n" + message))
 }

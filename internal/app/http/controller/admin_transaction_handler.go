@@ -39,11 +39,19 @@ func (tr *adminTransactionHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	tr.once.Do(func() {
-		adminPrivate.Path("/transaction").HandlerFunc(tr.transactionPage()).Methods("GET")
-		adminPrivate.Path("/transaction").HandlerFunc(tr.transaction()).Methods("POST")
+		adminPrivate.Path("/transaction").
+			HandlerFunc(tr.transactionPage()).
+			Methods("GET")
+		adminPrivate.Path("/transaction").
+			HandlerFunc(tr.transaction()).
+			Methods("POST")
 
-		adminPrivate.Path("/api/pendingTransactions").HandlerFunc(tr.pendingTransactions()).Methods("GET")
-		adminPrivate.Path("/api/cancelTransaction").HandlerFunc(tr.cancelTransaction()).Methods("POST")
+		adminPrivate.Path("/api/pendingTransactions").
+			HandlerFunc(tr.pendingTransactions()).
+			Methods("GET")
+		adminPrivate.Path("/api/cancelTransaction").
+			HandlerFunc(tr.cancelTransaction()).
+			Methods("POST")
 	})
 }
 
@@ -90,15 +98,25 @@ func (tr *adminTransactionHandler) transaction() func(http.ResponseWriter, *http
 		// Validate user inputs.
 		errorMessages := []string{}
 		if !util.IsValidEmail(f.FromEmail) {
-			errorMessages = append(errorMessages, "Please enter a valid sender email address.")
+			errorMessages = append(
+				errorMessages,
+				"Please enter a valid sender email address.",
+			)
 		}
 		if !util.IsValidEmail(f.ToEmail) {
-			errorMessages = append(errorMessages, "Please enter a valid recipient email address.")
+			errorMessages = append(
+				errorMessages,
+				"Please enter a valid recipient email address.",
+			)
 		}
 		amount, err := strconv.ParseFloat(r.FormValue("amount"), 64)
 		// Amount should be positive value and with up to two decimal places.
-		if err != nil || amount <= 0 || !util.IsDecimalValid(r.FormValue("amount")) {
-			errorMessages = append(errorMessages, "Please enter a valid numeric amount to send with up to two decimal places.")
+		if err != nil || amount <= 0 ||
+			!util.IsDecimalValid(r.FormValue("amount")) {
+			errorMessages = append(
+				errorMessages,
+				"Please enter a valid numeric amount to send with up to two decimal places.",
+			)
 		}
 		res.FormData.Amount = amount
 		if len(errorMessages) > 0 {
@@ -122,14 +140,28 @@ func (tr *adminTransactionHandler) transaction() func(http.ResponseWriter, *http
 
 		// Only allow transfers with accounts that also have "trading-accepted" status
 		if from.Status != constant.Trading.Accepted {
-			t.Render(w, r, res, []string{"Sender is not a trading member. You can only make transfers from businesses that have trading member status."})
+			t.Render(
+				w,
+				r,
+				res,
+				[]string{
+					"Sender is not a trading member. You can only make transfers from businesses that have trading member status.",
+				},
+			)
 			return
 		} else if to.Status != constant.Trading.Accepted {
 			t.Render(w, r, res, []string{"Receiver is not a trading member. You can only make transfers to businesses that have trading member status."})
 			return
 		}
 		if f.FromEmail == f.ToEmail {
-			t.Render(w, r, res, []string{"You cannot create a transaction from and to the same account."})
+			t.Render(
+				w,
+				r,
+				res,
+				[]string{
+					"You cannot create a transaction from and to the same account.",
+				},
+			)
 			return
 		}
 
@@ -157,14 +189,26 @@ func (tr *adminTransactionHandler) transaction() func(http.ResponseWriter, *http
 				return
 			}
 			err = service.UserAction.Log(
-				log.Admin.Transfer(adminUser, f.FromEmail, f.ToEmail, f.Amount, f.Description),
+				log.Admin.Transfer(
+					adminUser,
+					f.FromEmail,
+					f.ToEmail,
+					f.Amount,
+					f.Description,
+				),
 			)
 			if err != nil {
 				l.Logger.Error("log.Admin.Transaction failed", zap.Error(err))
 			}
 		}()
 
-		flash.Success(w, f.FromEmail+" has transferred "+fmt.Sprintf("%.2f", f.Amount)+" Credits to "+f.ToEmail)
+		flash.Success(
+			w,
+			f.FromEmail+" has transferred "+fmt.Sprintf(
+				"%.2f",
+				f.Amount,
+			)+" Credits to "+f.ToEmail,
+		)
 		http.Redirect(w, r, "/admin/transaction", http.StatusFound)
 	}
 }
@@ -178,19 +222,28 @@ func (tr *adminTransactionHandler) pendingTransactions() func(http.ResponseWrite
 
 		user, err := UserHandler.FindByBusinessID(q.Get("business_id"))
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.pendingTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.pendingTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		account, err := AccountHandler.FindByUserID(user.ID.Hex())
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.pendingTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.pendingTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		transactions, err := service.Transaction.FindPendings(account.ID)
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.pendingTransactions failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.pendingTransactions failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -201,13 +254,18 @@ func (tr *adminTransactionHandler) pendingTransactions() func(http.ResponseWrite
 	}
 }
 
-func (tr *adminTransactionHandler) isInitiatedStatus(w http.ResponseWriter, t *types.Transaction) (bool, error) {
+func (tr *adminTransactionHandler) isInitiatedStatus(
+	w http.ResponseWriter,
+	t *types.Transaction,
+) (bool, error) {
 	type response struct {
 		Error string `json:"error"`
 	}
 
 	if t.Status == constant.Transaction.Completed {
-		js, err := json.Marshal(response{Error: "The transaction has already been completed."})
+		js, err := json.Marshal(
+			response{Error: "The transaction has already been completed."},
+		)
 		if err != nil {
 			return false, err
 		}
@@ -238,21 +296,30 @@ func (tr *adminTransactionHandler) cancelTransaction() func(http.ResponseWriter,
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		transaction, err := service.Transaction.Find(req.TransactionID)
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		shouldContinue, err := tr.isInitiatedStatus(w, transaction)
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -262,7 +329,10 @@ func (tr *adminTransactionHandler) cancelTransaction() func(http.ResponseWriter,
 
 		err = service.Transaction.Cancel(req.TransactionID, req.Reason)
 		if err != nil {
-			l.Logger.Error("AdminTransactionHandler.cancelTransaction failed", zap.Error(err))
+			l.Logger.Error(
+				"AdminTransactionHandler.cancelTransaction failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

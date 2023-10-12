@@ -106,7 +106,10 @@ func (es *user) Update(u *types.User) error {
 	return nil
 }
 
-func (es *user) UpdateTradingInfo(id primitive.ObjectID, data *types.TradingRegisterData) error {
+func (es *user) UpdateTradingInfo(
+	id primitive.ObjectID,
+	data *types.TradingRegisterData,
+) error {
 	doc := map[string]interface{}{
 		"firstName": data.FirstName,
 		"lastName":  data.LastName,

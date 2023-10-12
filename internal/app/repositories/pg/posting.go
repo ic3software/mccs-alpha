@@ -11,7 +11,10 @@ type posting struct{}
 
 var Posting = &posting{}
 
-func (t *posting) FindInRange(from time.Time, to time.Time) ([]*types.Posting, error) {
+func (t *posting) FindInRange(
+	from time.Time,
+	to time.Time,
+) ([]*types.Posting, error) {
 	var result []*types.Posting
 	err := db.Raw(`
 	SELECT P.amount, P.created_at

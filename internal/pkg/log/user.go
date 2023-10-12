@@ -78,28 +78,55 @@ func (us user) ModifyAccount(
 	newBusiness *types.BusinessData,
 ) *types.UserAction {
 	// check for business
-	modifiedFields := util.CheckDiff(oldBusiness, newBusiness, map[string]bool{"Status": true})
+	modifiedFields := util.CheckDiff(
+		oldBusiness,
+		newBusiness,
+		map[string]bool{"Status": true},
+	)
 	if !helper.SameTags(newBusiness.Offers, oldBusiness.Offers) {
-		modifiedFields = append(modifiedFields, "offers: "+strings.Join(helper.GetTagNames(oldBusiness.Offers), " ")+" -> "+strings.Join(helper.GetTagNames(newBusiness.Offers), " "))
+		modifiedFields = append(
+			modifiedFields,
+			"offers: "+strings.Join(
+				helper.GetTagNames(oldBusiness.Offers),
+				" ",
+			)+" -> "+strings.Join(
+				helper.GetTagNames(newBusiness.Offers),
+				" ",
+			),
+		)
 	}
 	if !helper.SameTags(newBusiness.Wants, oldBusiness.Wants) {
-		modifiedFields = append(modifiedFields, "wants: "+strings.Join(helper.GetTagNames(oldBusiness.Wants), " ")+" -> "+strings.Join(helper.GetTagNames(newBusiness.Wants), " "))
+		modifiedFields = append(
+			modifiedFields,
+			"wants: "+strings.Join(
+				helper.GetTagNames(oldBusiness.Wants),
+				" ",
+			)+" -> "+strings.Join(
+				helper.GetTagNames(newBusiness.Wants),
+				" ",
+			),
+		)
 	}
 	// check for user
-	modifiedFields = append(modifiedFields, util.CheckDiff(oldUser, newUser, map[string]bool{
-		"CurrentLoginIP": true,
-		"Password":       true,
-		"LastLoginIP":    true,
-	})...)
+	modifiedFields = append(
+		modifiedFields,
+		util.CheckDiff(oldUser, newUser, map[string]bool{
+			"CurrentLoginIP": true,
+			"Password":       true,
+			"LastLoginIP":    true,
+		})...)
 	if len(modifiedFields) == 0 {
 		return nil
 	}
 	return &types.UserAction{
-		UserID:        oldUser.ID,
-		Email:         newUser.Email,
-		Action:        "modified account details",
-		ActionDetails: newUser.Email + " - " + strings.Join(modifiedFields, ", "),
-		Category:      "user",
+		UserID: oldUser.ID,
+		Email:  newUser.Email,
+		Action: "modified account details",
+		ActionDetails: newUser.Email + " - " + strings.Join(
+			modifiedFields,
+			", ",
+		),
+		Category: "user",
 	}
 }
 
@@ -116,8 +143,11 @@ func (us user) ProposeTransfer(
 		Email:  proposer.Email,
 		Action: "user proposed a transfer",
 		// [proposer] - [from] - [to] - [amount] - [desc]
-		ActionDetails: proposer.Email + " - " + fromEmail + " - " + toEmail + " - " + fmt.Sprintf("%.2f", amount) + " - " + desc,
-		Category:      "user",
+		ActionDetails: proposer.Email + " - " + fromEmail + " - " + toEmail + " - " + fmt.Sprintf(
+			"%.2f",
+			amount,
+		) + " - " + desc,
+		Category: "user",
 	}
 }
 
@@ -133,7 +163,10 @@ func (us user) Transfer(
 		Email:  u.Email,
 		Action: "user transfer",
 		// [from] - [to] - [amount] - [desc]
-		ActionDetails: u.Email + " - " + toEmail + " - " + fmt.Sprintf("%.2f", amount) + " - " + desc,
-		Category:      "user",
+		ActionDetails: u.Email + " - " + toEmail + " - " + fmt.Sprintf(
+			"%.2f",
+			amount,
+		) + " - " + desc,
+		Category: "user",
 	}
 }

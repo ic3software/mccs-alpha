@@ -8,33 +8,33 @@ import (
 
 // Business is the model representation of a business in the data model.
 type Business struct {
-	ID        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	ID        primitive.ObjectID `json:"_id,omitempty"       bson:"_id,omitempty"`
 	CreatedAt time.Time          `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
 	UpdatedAt time.Time          `json:"updatedAt,omitempty" bson:"updatedAt,omitempty"`
 	DeletedAt time.Time          `json:"deletedAt,omitempty" bson:"deletedAt,omitempty"`
 
-	BusinessName       string      `json:"businessName,omitempty" bson:"businessName,omitempty"`
-	BusinessPhone      string      `json:"businessPhone,omitempty" bson:"businessPhone,omitempty"`
-	IncType            string      `json:"incType,omitempty" bson:"incType,omitempty"`
-	CompanyNumber      string      `json:"companyNumber,omitempty" bson:"companyNumber,omitempty"`
-	Website            string      `json:"website,omitempty" bson:"website,omitempty"`
-	Turnover           int         `json:"turnover,omitempty" bson:"turnover,omitempty"`
-	Offers             []*TagField `json:"offers,omitempty" bson:"offers,omitempty"`
-	Wants              []*TagField `json:"wants,omitempty" bson:"wants,omitempty"`
-	Description        string      `json:"description,omitempty" bson:"description,omitempty"`
-	LocationAddress    string      `json:"locationAddress,omitempty" bson:"locationAddress,omitempty"`
-	LocationCity       string      `json:"locationCity,omitempty" bson:"locationCity,omitempty"`
-	LocationRegion     string      `json:"locationRegion,omitempty" bson:"locationRegion,omitempty"`
+	BusinessName       string      `json:"businessName,omitempty"       bson:"businessName,omitempty"`
+	BusinessPhone      string      `json:"businessPhone,omitempty"      bson:"businessPhone,omitempty"`
+	IncType            string      `json:"incType,omitempty"            bson:"incType,omitempty"`
+	CompanyNumber      string      `json:"companyNumber,omitempty"      bson:"companyNumber,omitempty"`
+	Website            string      `json:"website,omitempty"            bson:"website,omitempty"`
+	Turnover           int         `json:"turnover,omitempty"           bson:"turnover,omitempty"`
+	Offers             []*TagField `json:"offers,omitempty"             bson:"offers,omitempty"`
+	Wants              []*TagField `json:"wants,omitempty"              bson:"wants,omitempty"`
+	Description        string      `json:"description,omitempty"        bson:"description,omitempty"`
+	LocationAddress    string      `json:"locationAddress,omitempty"    bson:"locationAddress,omitempty"`
+	LocationCity       string      `json:"locationCity,omitempty"       bson:"locationCity,omitempty"`
+	LocationRegion     string      `json:"locationRegion,omitempty"     bson:"locationRegion,omitempty"`
 	LocationPostalCode string      `json:"locationPostalCode,omitempty" bson:"locationPostalCode,omitempty"`
-	LocationCountry    string      `json:"locationCountry,omitempty" bson:"locationCountry,omitempty"`
-	Status             string      `json:"status,omitempty" bson:"status,omitempty"`
-	AdminTags          []string    `json:"adminTags,omitempty" bson:"adminTags,omitempty"`
+	LocationCountry    string      `json:"locationCountry,omitempty"    bson:"locationCountry,omitempty"`
+	Status             string      `json:"status,omitempty"             bson:"status,omitempty"`
+	AdminTags          []string    `json:"adminTags,omitempty"          bson:"adminTags,omitempty"`
 	// Timestamp when trading status applied
-	MemberStartedAt time.Time `json:"memberStartedAt,omitempty" bson:"memberStartedAt,omitempty"`
+	MemberStartedAt time.Time `json:"memberStartedAt,omitempty"    bson:"memberStartedAt,omitempty"`
 }
 
 type TagField struct {
-	Name      string    `json:"name,omitempty" bson:"name,omitempty"`
+	Name      string    `json:"name,omitempty"      bson:"name,omitempty"`
 	CreatedAt time.Time `json:"createdAt,omitempty" bson:"createdAt,omitempty"`
 }
 

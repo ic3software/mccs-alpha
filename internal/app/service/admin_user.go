@@ -12,7 +12,10 @@ type adminUser struct{}
 
 var AdminUser = &adminUser{}
 
-func (a *adminUser) Login(email string, password string) (*types.AdminUser, error) {
+func (a *adminUser) Login(
+	email string,
+	password string,
+) (*types.AdminUser, error) {
 	user, err := mongo.AdminUser.FindByEmail(email)
 	if err != nil {
 		return &types.AdminUser{}, e.Wrap(err, "login admin user failed")

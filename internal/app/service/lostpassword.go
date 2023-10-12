@@ -46,7 +46,13 @@ func (s *lostpassword) SetTokenUsed(token string) error {
 }
 
 func (s *lostpassword) TokenInvalid(l *types.LostPassword) bool {
-	if time.Now().Sub(l.CreatedAt).Seconds() >= viper.GetFloat64("reset_password_timeout") || l.TokenUsed == true {
+	if time.Now().
+		Sub(l.CreatedAt).
+		Seconds() >=
+		viper.GetFloat64(
+			"reset_password_timeout",
+		) ||
+		l.TokenUsed == true {
 		return true
 	}
 	return false

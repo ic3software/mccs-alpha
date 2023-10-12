@@ -37,13 +37,25 @@ func (a *adminTagHandler) RegisterRoutes(
 	adminPrivate *mux.Router,
 ) {
 	a.once.Do(func() {
-		adminPrivate.Path("/admin-tags").HandlerFunc(a.adminTagPage()).Methods("GET")
-		adminPrivate.Path("/admin-tags/search").HandlerFunc(a.searchAdminTags()).Methods("GET")
+		adminPrivate.Path("/admin-tags").
+			HandlerFunc(a.adminTagPage()).
+			Methods("GET")
+		adminPrivate.Path("/admin-tags/search").
+			HandlerFunc(a.searchAdminTags()).
+			Methods("GET")
 
-		public.Path("/api/admin-tags/list/{prefix}").HandlerFunc(a.list()).Methods("GET")
-		adminPrivate.Path("/api/admin-tags").HandlerFunc(a.createAdminTag()).Methods("POST")
-		adminPrivate.Path("/api/admin-tags/{id}").HandlerFunc(a.renameAdminTag()).Methods("PUT")
-		adminPrivate.Path("/api/admin-tags/{id}").HandlerFunc(a.deleteAdminTag()).Methods("DELETE")
+		public.Path("/api/admin-tags/list/{prefix}").
+			HandlerFunc(a.list()).
+			Methods("GET")
+		adminPrivate.Path("/api/admin-tags").
+			HandlerFunc(a.createAdminTag()).
+			Methods("POST")
+		adminPrivate.Path("/api/admin-tags/{id}").
+			HandlerFunc(a.renameAdminTag()).
+			Methods("PUT")
+		adminPrivate.Path("/api/admin-tags/{id}").
+			HandlerFunc(a.deleteAdminTag()).
+			Methods("DELETE")
 	})
 }
 
@@ -107,12 +119,20 @@ func (a *adminTagHandler) createAdminTag() func(http.ResponseWriter, *http.Reque
 			objID, _ := primitive.ObjectIDFromHex(r.Header.Get("userID"))
 			adminUser, err := service.AdminUser.FindByID(objID)
 			if err != nil {
-				l.Logger.Error("log.Admin.CreateAdminTag failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.CreateAdminTag failed",
+					zap.Error(err),
+				)
 				return
 			}
-			err = service.UserAction.Log(log.Admin.CreateAdminTag(adminUser, req.Name))
+			err = service.UserAction.Log(
+				log.Admin.CreateAdminTag(adminUser, req.Name),
+			)
 			if err != nil {
-				l.Logger.Error("log.Admin.CreateAdminTag failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.CreateAdminTag failed",
+					zap.Error(err),
+				)
 			}
 		}()
 
@@ -233,12 +253,20 @@ func (a *adminTagHandler) renameAdminTag() func(http.ResponseWriter, *http.Reque
 			objID, _ := primitive.ObjectIDFromHex(r.Header.Get("userID"))
 			adminUser, err := service.AdminUser.FindByID(objID)
 			if err != nil {
-				l.Logger.Error("log.Admin.ModifyAdminTag failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.ModifyAdminTag failed",
+					zap.Error(err),
+				)
 				return
 			}
-			err = service.UserAction.Log(log.Admin.ModifyAdminTag(adminUser, oldName, req.Name))
+			err = service.UserAction.Log(
+				log.Admin.ModifyAdminTag(adminUser, oldName, req.Name),
+			)
 			if err != nil {
-				l.Logger.Error("log.Admin.ModifyAdminTag failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.ModifyAdminTag failed",
+					zap.Error(err),
+				)
 			}
 		}()
 
@@ -281,12 +309,20 @@ func (a *adminTagHandler) deleteAdminTag() func(http.ResponseWriter, *http.Reque
 			objID, _ := primitive.ObjectIDFromHex(r.Header.Get("userID"))
 			adminUser, err := service.AdminUser.FindByID(objID)
 			if err != nil {
-				l.Logger.Error("log.Admin.DeleteAdminTag failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.DeleteAdminTag failed",
+					zap.Error(err),
+				)
 				return
 			}
-			err = service.UserAction.Log(log.Admin.DeleteAdminTag(adminUser, adminTag.Name))
+			err = service.UserAction.Log(
+				log.Admin.DeleteAdminTag(adminUser, adminTag.Name),
+			)
 			if err != nil {
-				l.Logger.Error("log.Admin.DeleteAdminTag failed", zap.Error(err))
+				l.Logger.Error(
+					"log.Admin.DeleteAdminTag failed",
+					zap.Error(err),
+				)
 			}
 		}()
 
@@ -301,14 +337,20 @@ func (a *adminTagHandler) list() func(http.ResponseWriter, *http.Request) {
 
 		tags, err := service.AdminTag.TagStartWith(prefix)
 		if err != nil {
-			l.Logger.Error("controller.AdminTagHandler.List failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.AdminTagHandler.List failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(tags)
 		if err != nil {
-			l.Logger.Error("controller.AdminTagHandler.List failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.AdminTagHandler.List failed",
+				zap.Error(err),
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

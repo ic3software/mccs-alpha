@@ -44,9 +44,15 @@ func (a *adminUserHandler) RegisterRoutes(
 		adminPrivate.Path("").HandlerFunc(a.dashboardPage()).Methods("GET")
 		adminPublic.Path("/login").HandlerFunc(a.loginPage()).Methods("GET")
 		adminPublic.Path("/login").HandlerFunc(a.loginHandler()).Methods("POST")
-		adminPrivate.Path("/logout").HandlerFunc(a.logoutHandler()).Methods("GET")
-		adminPrivate.Path("/users/{id}").HandlerFunc(a.userPage()).Methods("GET")
-		adminPrivate.Path("/users/{id}").HandlerFunc(a.updateUser()).Methods("POST")
+		adminPrivate.Path("/logout").
+			HandlerFunc(a.logoutHandler()).
+			Methods("GET")
+		adminPrivate.Path("/users/{id}").
+			HandlerFunc(a.userPage()).
+			Methods("GET")
+		adminPrivate.Path("/users/{id}").
+			HandlerFunc(a.updateUser()).
+			Methods("POST")
 	})
 }
 
@@ -77,7 +83,12 @@ func (a *adminUserHandler) loginPage() func(http.ResponseWriter, *http.Request) 
 		RecaptchaSitekey string
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		t.Render(w, r, formData{RecaptchaSitekey: viper.GetString("recaptcha.site_key")}, nil)
+		t.Render(
+			w,
+			r,
+			formData{RecaptchaSitekey: viper.GetString("recaptcha.site_key")},
+			nil,
+		)
 	}
 }
 
@@ -100,7 +111,10 @@ func (a *adminUserHandler) loginHandler() func(http.ResponseWriter, *http.Reques
 		if viper.GetString("env") == "production" {
 			isValid := recaptcha.Verify(*r)
 			if !isValid {
-				l.Logger.Error("AdminLoginHandler failed", zap.Strings("errs", recaptcha.Error()))
+				l.Logger.Error(
+					"AdminLoginHandler failed",
+					zap.Strings("errs", recaptcha.Error()),
+				)
 				t.Render(w, r, f, recaptcha.Error())
 				return
 			}
@@ -114,19 +128,27 @@ func (a *adminUserHandler) loginHandler() func(http.ResponseWriter, *http.Reques
 				user, err := service.AdminUser.FindByEmail(f.Email)
 				if err != nil {
 					if !e.IsUserNotFound(err) {
-						l.Logger.Error("BuildLoginFailureAction failed", zap.Error(err))
+						l.Logger.Error(
+							"BuildLoginFailureAction failed",
+							zap.Error(err),
+						)
 					}
 					return
 				}
-				err = service.UserAction.Log(log.Admin.LoginFailure(user, ip.FromRequest(r)))
+				err = service.UserAction.Log(
+					log.Admin.LoginFailure(user, ip.FromRequest(r)),
+				)
 				if err != nil {
-					l.Logger.Error("BuildLoginFailureAction failed", zap.Error(err))
+					l.Logger.Error(
+						"BuildLoginFailureAction failed",
+						zap.Error(err),
+					)
 				}
 			}()
 			return
 		}
 
-		token, err := jwt.GenerateToken(user.ID.Hex(), true)
+		token, err := jwt.NewJWTManager().Generate(user.ID.Hex(), true)
 		http.SetCookie(w, cookie.CreateCookie(token))
 
 		go func() {
@@ -136,7 +158,9 @@ func (a *adminUserHandler) loginHandler() func(http.ResponseWriter, *http.Reques
 			}
 		}()
 		go func() {
-			err := service.UserAction.Log(log.Admin.LoginSuccess(user, ip.FromRequest(r)))
+			err := service.UserAction.Log(
+				log.Admin.LoginSuccess(user, ip.FromRequest(r)),
+			)
 			if err != nil {
 				l.Logger.Error("log.Admin.LoginSuccess failed", zap.Error(err))
 			}
@@ -192,8 +216,12 @@ func (a *adminUserHandler) updateUser() func(http.ResponseWriter, *http.Request)
 
 		errorMessages := validator.ValidateUser(updateData.User)
 
-		if (r.FormValue("origin_email") != updateData.User.Email) && service.User.UserEmailExists(updateData.User.Email) {
-			errorMessages = append(errorMessages, "Email address is already registered")
+		if (r.FormValue("origin_email") != updateData.User.Email) &&
+			service.User.UserEmailExists(updateData.User.Email) {
+			errorMessages = append(
+				errorMessages,
+				"Email address is already registered",
+			)
 		}
 
 		if len(errorMessages) > 0 {
@@ -217,13 +245,22 @@ func (a *adminUserHandler) updateUser() func(http.ResponseWriter, *http.Request)
 		}
 
 		if updateData.User.Password != "" || updateData.ConfirmPassword != "" {
-			errorMessages := validator.ValidatePassword(updateData.User.Password, updateData.ConfirmPassword)
+			errorMessages := validator.ValidatePassword(
+				updateData.User.Password,
+				updateData.ConfirmPassword,
+			)
 			if len(errorMessages) > 0 {
-				l.Logger.Error("UpdateUser failed", zap.Strings("input invalid", errorMessages))
+				l.Logger.Error(
+					"UpdateUser failed",
+					zap.Strings("input invalid", errorMessages),
+				)
 				t.Render(w, r, updateData, errorMessages)
 				return
 			}
-			err = service.User.ResetPassword(updateData.User.Email, updateData.ConfirmPassword)
+			err = service.User.ResetPassword(
+				updateData.User.Email,
+				updateData.ConfirmPassword,
+			)
 			if err != nil {
 				l.Logger.Error("UpdateUser failed", zap.Error(err))
 				t.Error(w, r, updateData, err)
@@ -238,7 +275,9 @@ func (a *adminUserHandler) updateUser() func(http.ResponseWriter, *http.Request)
 				l.Logger.Error("log.Admin.ModifyUser failed", zap.Error(err))
 				return
 			}
-			err = service.UserAction.Log(log.Admin.ModifyUser(adminUser, oldUser, updateData.User))
+			err = service.UserAction.Log(
+				log.Admin.ModifyUser(adminUser, oldUser, updateData.User),
+			)
 			if err != nil {
 				l.Logger.Error("log.Admin.ModifyUser failed", zap.Error(err))
 			}

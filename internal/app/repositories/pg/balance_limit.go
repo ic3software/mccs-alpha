@@ -26,7 +26,9 @@ func (b balanceLimit) Create(tx *gorm.DB, accountID uint) error {
 	return nil
 }
 
-func (b balanceLimit) FindByAccountID(accountID uint) (*types.BalanceLimit, error) {
+func (b balanceLimit) FindByAccountID(
+	accountID uint,
+) (*types.BalanceLimit, error) {
 	balance := new(types.BalanceLimit)
 	err := db.Where("account_id = ?", accountID).First(balance).Error
 	if err != nil {
@@ -35,7 +37,11 @@ func (b balanceLimit) FindByAccountID(accountID uint) (*types.BalanceLimit, erro
 	return balance, nil
 }
 
-func (b balanceLimit) Update(id uint, maxPosBal float64, maxNegBal float64) error {
+func (b balanceLimit) Update(
+	id uint,
+	maxPosBal float64,
+	maxNegBal float64,
+) error {
 	if math.Abs(maxNegBal) == 0 {
 		maxNegBal = 0
 	} else {

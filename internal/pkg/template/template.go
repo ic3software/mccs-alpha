@@ -80,7 +80,12 @@ func NewEmailView(templateName string) (*template.Template, error) {
 }
 
 // Render is used to render the view with the predefined layout.
-func (v *View) Render(w http.ResponseWriter, r *http.Request, yield interface{}, ErrorMessages []string) {
+func (v *View) Render(
+	w http.ResponseWriter,
+	r *http.Request,
+	yield interface{},
+	ErrorMessages []string,
+) {
 	w.Header().Set("Content-Type", "text/html")
 
 	var vd Data
@@ -100,7 +105,12 @@ func (v *View) Render(w http.ResponseWriter, r *http.Request, yield interface{},
 }
 
 // Success renders the self defined success message.
-func (v *View) Success(w http.ResponseWriter, r *http.Request, yield interface{}, message string) {
+func (v *View) Success(
+	w http.ResponseWriter,
+	r *http.Request,
+	yield interface{},
+	message string,
+) {
 	w.Header().Set("Content-Type", "text/html")
 
 	var vd Data
@@ -118,7 +128,12 @@ func (v *View) Success(w http.ResponseWriter, r *http.Request, yield interface{}
 }
 
 // Error renders the self defined error message.
-func (v *View) Error(w http.ResponseWriter, r *http.Request, yield interface{}, err error) {
+func (v *View) Error(
+	w http.ResponseWriter,
+	r *http.Request,
+	yield interface{},
+	err error,
+) {
 	w.Header().Set("Content-Type", "text/html")
 
 	var vd Data

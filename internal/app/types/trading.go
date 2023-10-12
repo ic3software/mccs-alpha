@@ -69,8 +69,12 @@ func (t *TradingRegisterData) Validate() []string {
 	} else if len(t.Description) > 500 {
 		errs = append(errs, "Business description cannot exceed 500 characters.")
 	}
-	if t.Website != "" && !strings.HasPrefix(t.Website, "http://") && !strings.HasPrefix(t.Website, "https://") {
-		errs = append(errs, "Website URL should start with http:// or https://.")
+	if t.Website != "" && !strings.HasPrefix(t.Website, "http://") &&
+		!strings.HasPrefix(t.Website, "https://") {
+		errs = append(
+			errs,
+			"Website URL should start with http:// or https://.",
+		)
 	} else if len(t.Website) > 100 {
 		errs = append(errs, "Website URL cannot exceed 100 characters.")
 	}
@@ -119,7 +123,10 @@ func (t *TradingRegisterData) Validate() []string {
 		errs = append(errs, "Telephone cannot exceed 25 characters.")
 	}
 	if t.Authorised != "on" {
-		errs = append(errs, "Please confirm you have read and agree to the Membership Agreement on behalf of your business.")
+		errs = append(
+			errs,
+			"Please confirm you have read and agree to the Membership Agreement on behalf of your business.",
+		)
 	}
 
 	return errs
@@ -146,8 +153,12 @@ func (t *TradingUpdateData) Validate() []string {
 	} else if len(t.Description) > 500 {
 		errs = append(errs, "Business description cannot exceed 500 characters.")
 	}
-	if t.Website != "" && !strings.HasPrefix(t.Website, "http://") && !strings.HasPrefix(t.Website, "https://") {
-		errs = append(errs, "Website URL should start with http:// or https://.")
+	if t.Website != "" && !strings.HasPrefix(t.Website, "http://") &&
+		!strings.HasPrefix(t.Website, "https://") {
+		errs = append(
+			errs,
+			"Website URL should start with http:// or https://.",
+		)
 	} else if len(t.Website) > 100 {
 		errs = append(errs, "Website URL cannot exceed 100 characters.")
 	}

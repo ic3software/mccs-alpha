@@ -156,7 +156,10 @@ func (es *tag) DeleteByID(id string) error {
 }
 
 // MatchOffer matches wants for the given offer.
-func (es *tag) MatchOffer(offer string, lastLoginDate time.Time) ([]string, error) {
+func (es *tag) MatchOffer(
+	offer string,
+	lastLoginDate time.Time,
+) ([]string, error) {
 	q := newTagQuery(offer, lastLoginDate, "wantAddedAt")
 	res, err := es.c.Search().
 		Index(es.index).
@@ -181,7 +184,10 @@ func (es *tag) MatchOffer(offer string, lastLoginDate time.Time) ([]string, erro
 }
 
 // MatchWant matches offers for the given want.
-func (es *tag) MatchWant(want string, lastLoginDate time.Time) ([]string, error) {
+func (es *tag) MatchWant(
+	want string,
+	lastLoginDate time.Time,
+) ([]string, error) {
 	q := newTagQuery(want, lastLoginDate, "offerAddedAt")
 	res, err := es.c.Search().
 		Index(es.index).

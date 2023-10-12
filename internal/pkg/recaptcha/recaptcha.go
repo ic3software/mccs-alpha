@@ -57,7 +57,10 @@ func (r *Recaptcha) verifyResponse(response string) bool {
 		return false
 	}
 	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.PostForm(postURL, url.Values{"secret": {r.Secret}, "response": {response}})
+	resp, err := client.PostForm(
+		postURL,
+		url.Values{"secret": {r.Secret}, "response": {response}},
+	)
 	if err != nil {
 		r.errMsg = err.Error()
 		return false

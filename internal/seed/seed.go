@@ -76,7 +76,9 @@ func Run() {
 
 	// Generate users and businesses.
 	for i, b := range businessData {
-		res, err := mongo.DB().Collection("businesses").InsertOne(context.Background(), b)
+		res, err := mongo.DB().
+			Collection("businesses").
+			InsertOne(context.Background(), b)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -111,7 +113,9 @@ func Run() {
 		u.CompanyID = b.ID
 		hashedPassword, _ := bcrypt.Hash(u.Password)
 		u.Password = hashedPassword
-		res, err = mongo.DB().Collection("users").InsertOne(context.Background(), u)
+		res, err = mongo.DB().
+			Collection("users").
+			InsertOne(context.Background(), u)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -141,7 +145,9 @@ func Run() {
 	for _, u := range adminUserData {
 		hashedPassword, _ := bcrypt.Hash(u.Password)
 		u.Password = hashedPassword
-		_, err := mongo.DB().Collection("adminUsers").InsertOne(context.Background(), u)
+		_, err := mongo.DB().
+			Collection("adminUsers").
+			InsertOne(context.Background(), u)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -149,7 +155,9 @@ func Run() {
 
 	// Generate user tags.
 	for _, t := range tagData {
-		res, err := mongo.DB().Collection("tags").InsertOne(context.Background(), t)
+		res, err := mongo.DB().
+			Collection("tags").
+			InsertOne(context.Background(), t)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -177,7 +185,9 @@ func Run() {
 
 	// Generate admin tags.
 	for _, a := range adminTagData {
-		_, err := mongo.DB().Collection("adminTags").InsertOne(context.Background(), a)
+		_, err := mongo.DB().
+			Collection("adminTags").
+			InsertOne(context.Background(), a)
 		if err != nil {
 			log.Fatal(err)
 		}

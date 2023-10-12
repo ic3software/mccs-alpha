@@ -22,7 +22,9 @@ func (b *business) FindByID(id primitive.ObjectID) (*types.Business, error) {
 	return bs, nil
 }
 
-func (b *business) Create(business *types.BusinessData) (primitive.ObjectID, error) {
+func (b *business) Create(
+	business *types.BusinessData,
+) (primitive.ObjectID, error) {
 	id, err := mongo.Business.Create(business)
 	if err != nil {
 		return primitive.ObjectID{}, e.Wrap(err, "create business failed")
@@ -58,7 +60,10 @@ func (b *business) SetMemberStartedAt(id primitive.ObjectID) error {
 	return nil
 }
 
-func (b *business) UpdateAllTagsCreatedAt(id primitive.ObjectID, t time.Time) error {
+func (b *business) UpdateAllTagsCreatedAt(
+	id primitive.ObjectID,
+	t time.Time,
+) error {
 	err := es.Business.UpdateAllTagsCreatedAt(id, t)
 	if err != nil {
 		return e.Wrap(err, "BusinessService UpdateAllTagsCreatedAt failed")
@@ -70,7 +75,10 @@ func (b *business) UpdateAllTagsCreatedAt(id primitive.ObjectID, t time.Time) er
 	return nil
 }
 
-func (b *business) FindBusiness(c *types.SearchCriteria, page int64) (*types.FindBusinessResult, error) {
+func (b *business) FindBusiness(
+	c *types.SearchCriteria,
+	page int64,
+) (*types.FindBusinessResult, error) {
 	ids, numberOfResults, totalPages, err := es.Business.Find(c, page)
 	if err != nil {
 		return nil, e.Wrap(err, "BusinessService FindBusiness failed")

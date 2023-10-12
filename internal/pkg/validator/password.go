@@ -18,7 +18,11 @@ func ValidatePassword(password string, confirmPassword string) []string {
 	return errorMessages
 }
 
-func validateUpdatePassword(currentPass string, newPass string, confirmPass string) []string {
+func validateUpdatePassword(
+	currentPass string,
+	newPass string,
+	confirmPass string,
+) []string {
 	errorMessages := []string{}
 
 	if currentPass == "" && newPass == "" && confirmPass == "" {
@@ -26,7 +30,10 @@ func validateUpdatePassword(currentPass string, newPass string, confirmPass stri
 	}
 
 	if currentPass == "" {
-		errorMessages = append(errorMessages, "Please enter your current password.")
+		errorMessages = append(
+			errorMessages,
+			"Please enter your current password.",
+		)
 	} else if newPass != confirmPass {
 		errorMessages = append(errorMessages, "New password and confirmation password do not match.")
 	} else {

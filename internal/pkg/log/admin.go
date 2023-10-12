@@ -13,7 +13,10 @@ type admin struct{}
 
 var Admin = admin{}
 
-func (a admin) LoginSuccess(admin *types.AdminUser, ip string) *types.UserAction {
+func (a admin) LoginSuccess(
+	admin *types.AdminUser,
+	ip string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID: admin.ID,
@@ -25,7 +28,10 @@ func (a admin) LoginSuccess(admin *types.AdminUser, ip string) *types.UserAction
 	}
 }
 
-func (a admin) LoginFailure(admin *types.AdminUser, ip string) *types.UserAction {
+func (a admin) LoginFailure(
+	admin *types.AdminUser,
+	ip string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID: admin.ID,
@@ -47,24 +53,62 @@ func (a admin) ModifyBusiness(
 ) *types.UserAction {
 	modifiedFields := util.CheckDiff(oldBusiness, newBusiness, nil)
 	if !helper.SameTags(newBusiness.Offers, oldBusiness.Offers) {
-		modifiedFields = append(modifiedFields, "offers: "+strings.Join(helper.GetTagNames(oldBusiness.Offers), " ")+" -> "+strings.Join(helper.GetTagNames(newBusiness.Offers), " "))
+		modifiedFields = append(
+			modifiedFields,
+			"offers: "+strings.Join(
+				helper.GetTagNames(oldBusiness.Offers),
+				" ",
+			)+" -> "+strings.Join(
+				helper.GetTagNames(newBusiness.Offers),
+				" ",
+			),
+		)
 	}
 	if !helper.SameTags(newBusiness.Wants, oldBusiness.Wants) {
-		modifiedFields = append(modifiedFields, "wants: "+strings.Join(helper.GetTagNames(oldBusiness.Wants), " ")+" -> "+strings.Join(helper.GetTagNames(newBusiness.Wants), " "))
+		modifiedFields = append(
+			modifiedFields,
+			"wants: "+strings.Join(
+				helper.GetTagNames(oldBusiness.Wants),
+				" ",
+			)+" -> "+strings.Join(
+				helper.GetTagNames(newBusiness.Wants),
+				" ",
+			),
+		)
 	}
-	if strings.Join(newBusiness.AdminTags, " ") != strings.Join(oldBusiness.AdminTags, " ") {
-		modifiedFields = append(modifiedFields, "adminTags: "+strings.Join(oldBusiness.AdminTags, " ")+" -> "+strings.Join(newBusiness.AdminTags, " "))
+	if strings.Join(
+		newBusiness.AdminTags,
+		" ",
+	) != strings.Join(
+		oldBusiness.AdminTags,
+		" ",
+	) {
+		modifiedFields = append(
+			modifiedFields,
+			"adminTags: "+strings.Join(
+				oldBusiness.AdminTags,
+				" ",
+			)+" -> "+strings.Join(
+				newBusiness.AdminTags,
+				" ",
+			),
+		)
 	}
-	modifiedFields = append(modifiedFields, util.CheckDiff(oldBalance, newBalance, map[string]bool{})...)
+	modifiedFields = append(
+		modifiedFields,
+		util.CheckDiff(oldBalance, newBalance, map[string]bool{})...)
 	if len(modifiedFields) == 0 {
 		return nil
 	}
 	return &types.UserAction{
-		UserID:        user.ID,
-		Email:         user.Email,
-		Action:        "admin modified business details",
-		ActionDetails: admin.Email + " - " + user.Email + " - " + strings.Join(modifiedFields, ", "),
-		Category:      "admin",
+		UserID: user.ID,
+		Email:  user.Email,
+		Action: "admin modified business details",
+		ActionDetails: admin.Email + " - " + user.Email + " - " + strings.Join(
+			modifiedFields,
+			", ",
+		),
+		Category: "admin",
 	}
 }
 
@@ -82,15 +126,21 @@ func (a admin) ModifyUser(
 		return nil
 	}
 	return &types.UserAction{
-		UserID:        oldUser.ID,
-		Email:         newUser.Email,
-		Action:        "admin modified user details",
-		ActionDetails: admin.Email + " - " + newUser.Email + ": " + strings.Join(modifiedFields, ", "),
-		Category:      "admin",
+		UserID: oldUser.ID,
+		Email:  newUser.Email,
+		Action: "admin modified user details",
+		ActionDetails: admin.Email + " - " + newUser.Email + ": " + strings.Join(
+			modifiedFields,
+			", ",
+		),
+		Category: "admin",
 	}
 }
 
-func (a admin) CreateTag(admin *types.AdminUser, tagName string) *types.UserAction {
+func (a admin) CreateTag(
+	admin *types.AdminUser,
+	tagName string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID:        admin.ID,
@@ -101,7 +151,11 @@ func (a admin) CreateTag(admin *types.AdminUser, tagName string) *types.UserActi
 	}
 }
 
-func (a admin) ModifyTag(admin *types.AdminUser, old string, new string) *types.UserAction {
+func (a admin) ModifyTag(
+	admin *types.AdminUser,
+	old string,
+	new string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID:        admin.ID,
@@ -112,7 +166,10 @@ func (a admin) ModifyTag(admin *types.AdminUser, old string, new string) *types.
 	}
 }
 
-func (a admin) DeleteTag(admin *types.AdminUser, tagName string) *types.UserAction {
+func (a admin) DeleteTag(
+	admin *types.AdminUser,
+	tagName string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID:        admin.ID,
@@ -123,7 +180,10 @@ func (a admin) DeleteTag(admin *types.AdminUser, tagName string) *types.UserActi
 	}
 }
 
-func (a admin) CreateAdminTag(admin *types.AdminUser, tagName string) *types.UserAction {
+func (a admin) CreateAdminTag(
+	admin *types.AdminUser,
+	tagName string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID:        admin.ID,
@@ -134,7 +194,11 @@ func (a admin) CreateAdminTag(admin *types.AdminUser, tagName string) *types.Use
 	}
 }
 
-func (a admin) ModifyAdminTag(admin *types.AdminUser, old string, new string) *types.UserAction {
+func (a admin) ModifyAdminTag(
+	admin *types.AdminUser,
+	old string,
+	new string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID:        admin.ID,
@@ -145,7 +209,10 @@ func (a admin) ModifyAdminTag(admin *types.AdminUser, old string, new string) *t
 	}
 }
 
-func (a admin) DeleteAdminTag(admin *types.AdminUser, tagName string) *types.UserAction {
+func (a admin) DeleteAdminTag(
+	admin *types.AdminUser,
+	tagName string,
+) *types.UserAction {
 	admin.Email = strings.ToLower(admin.Email)
 	return &types.UserAction{
 		UserID:        admin.ID,
@@ -169,7 +236,10 @@ func (a admin) Transfer(
 		Email:  admin.Email,
 		Action: "admin transfer for user",
 		// admin - [from] -> [to] - [amount]
-		ActionDetails: admin.Email + " - " + fromEmail + " -> " + toEmail + " - " + fmt.Sprintf("%.2f", amount) + " - " + desc,
-		Category:      "admin",
+		ActionDetails: admin.Email + " - " + fromEmail + " -> " + toEmail + " - " + fmt.Sprintf(
+			"%.2f",
+			amount,
+		) + " - " + desc,
+		Category: "admin",
 	}
 }

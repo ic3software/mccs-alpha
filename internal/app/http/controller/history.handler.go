@@ -35,7 +35,9 @@ func (h *historyHandler) RegisterRoutes(
 ) {
 	h.once.Do(func() {
 		private.Path("/history").HandlerFunc(h.historyPage()).Methods("GET")
-		private.Path("/history/search").HandlerFunc(h.searchHistory()).Methods("GET")
+		private.Path("/history/search").
+			HandlerFunc(h.searchHistory()).
+			Methods("GET")
 	})
 }
 
@@ -69,7 +71,10 @@ func (h *historyHandler) searchHistory() func(http.ResponseWriter, *http.Request
 
 		page, err := strconv.Atoi(q.Get("page"))
 		if err != nil {
-			l.Logger.Error("controller.History.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.History.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}
@@ -83,7 +88,10 @@ func (h *historyHandler) searchHistory() func(http.ResponseWriter, *http.Request
 
 		user, err := UserHandler.FindByID(r.Header.Get("userID"))
 		if err != nil {
-			l.Logger.Error("controller.History.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.History.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}
@@ -91,7 +99,10 @@ func (h *historyHandler) searchHistory() func(http.ResponseWriter, *http.Request
 		// Get the account balance.
 		account, err := service.Account.FindByBusinessID(user.CompanyID.Hex())
 		if err != nil {
-			l.Logger.Error("controller.History.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.History.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}
@@ -105,7 +116,10 @@ func (h *historyHandler) searchHistory() func(http.ResponseWriter, *http.Request
 			page,
 		)
 		if err != nil {
-			l.Logger.Error("controller.History.HistoryPage failed", zap.Error(err))
+			l.Logger.Error(
+				"controller.History.HistoryPage failed",
+				zap.Error(err),
+			)
 			t.Error(w, r, nil, err)
 			return
 		}

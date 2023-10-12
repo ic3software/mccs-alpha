@@ -53,24 +53,38 @@ func (t *transaction) Create(
 	journalID := journalRecord.ID
 
 	// Create postings.
-	err = tx.Create(&types.Posting{AccountID: fromID, JournalID: journalID, Amount: -amount}).Error
+	err = tx.Create(
+		&types.Posting{
+			AccountID: fromID,
+			JournalID: journalID,
+			Amount:    -amount,
+		},
+	).Error
 	if err != nil {
 		tx.Rollback()
 		return e.Wrap(err, "pg.Transaction.Create")
 	}
-	err = tx.Create(&types.Posting{AccountID: toID, JournalID: journalID, Amount: amount}).Error
+	err = tx.Create(
+		&types.Posting{AccountID: toID, JournalID: journalID, Amount: amount},
+	).Error
 	if err != nil {
 		tx.Rollback()
 		return e.Wrap(err, "pg.Transaction.Create")
 	}
 
 	// Update accounts' balance.
-	err = tx.Model(&types.Account{}).Where("id = ?", fromID).Update("balance", gorm.Expr("balance - ?", amount)).Error
+	err = tx.Model(&types.Account{}).
+		Where("id = ?", fromID).
+		Update("balance", gorm.Expr("balance - ?", amount)).
+		Error
 	if err != nil {
 		tx.Rollback()
 		return e.Wrap(err, "pg.Transaction.Create")
 	}
-	err = tx.Model(&types.Account{}).Where("id = ?", toID).Update("balance", gorm.Expr("balance + ?", amount)).Error
+	err = tx.Model(&types.Account{}).
+		Where("id = ?", toID).
+		Update("balance", gorm.Expr("balance + ?", amount)).
+		Error
 	if err != nil {
 		tx.Rollback()
 		return e.Wrap(err, "pg.Transaction.Create")
@@ -189,12 +203,18 @@ func (t *transaction) Accept(
 	}
 
 	// Update accounts' balance.
-	err = tx.Model(&types.Account{}).Where("id = ?", fromID).Update("balance", gorm.Expr("balance - ?", amount)).Error
+	err = tx.Model(&types.Account{}).
+		Where("id = ?", fromID).
+		Update("balance", gorm.Expr("balance - ?", amount)).
+		Error
 	if err != nil {
 		tx.Rollback()
 		return e.Wrap(err, "pg.Transaction.Accept")
 	}
-	err = tx.Model(&types.Account{}).Where("id = ?", toID).Update("balance", gorm.Expr("balance + ?", amount)).Error
+	err = tx.Model(&types.Account{}).
+		Where("id = ?", toID).
+		Update("balance", gorm.Expr("balance + ?", amount)).
+		Error
 	if err != nil {
 		tx.Rollback()
 		return e.Wrap(err, "pg.Transaction.Accept")
@@ -252,7 +272,12 @@ func (t *transaction) FindRecent(id uint) ([]*types.Transaction, error) {
 }
 
 // FindInRange finds the completed transactions in specific time range.
-func (t *transaction) FindInRange(id uint, dateFrom time.Time, dateTo time.Time, page int) ([]*types.Transaction, int, error) {
+func (t *transaction) FindInRange(
+	id uint,
+	dateFrom time.Time,
+	dateTo time.Time,
+	page int,
+) ([]*types.Transaction, int, error) {
 	limit := viper.GetInt("page_size")
 	offset := viper.GetInt("page_size") * (page - 1)
 
@@ -277,7 +302,9 @@ func (t *transaction) FindInRange(id uint, dateFrom time.Time, dateTo time.Time,
 	`, id, dateFrom, dateTo, limit, offset).Scan(&result).Error
 
 	var numberOfResults int64
-	db.Model(&types.Posting{}).Where("account_id = ? AND (created_at BETWEEN ? AND ?)", id, dateFrom, dateTo).Count(&numberOfResults)
+	db.Model(&types.Posting{}).
+		Where("account_id = ? AND (created_at BETWEEN ? AND ?)", id, dateFrom, dateTo).
+		Count(&numberOfResults)
 	totalPages := pagination.Pages(numberOfResults, viper.GetInt64("page_size"))
 
 	if err != nil {

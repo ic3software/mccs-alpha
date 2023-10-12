@@ -41,8 +41,12 @@ func (a *accountHandler) RegisterRoutes(
 	a.once.Do(func() {
 		private.Path("/account").HandlerFunc(a.accountPage()).Methods("GET")
 		private.Path("/account").HandlerFunc(a.updateAccount()).Methods("POST")
-		adminPrivate.Path("/accounts").HandlerFunc(a.searchAccountPage()).Methods("GET")
-		adminPrivate.Path("/accounts/search").HandlerFunc(a.searchAccount()).Methods("GET")
+		adminPrivate.Path("/accounts").
+			HandlerFunc(a.searchAccountPage()).
+			Methods("GET")
+		adminPrivate.Path("/accounts/search").
+			HandlerFunc(a.searchAccount()).
+			Methods("GET")
 	})
 }
 
@@ -122,7 +126,12 @@ func (a *accountHandler) searchAccount() func(http.ResponseWriter, *http.Request
 		res := sreachResponse{FormData: f, Result: new(findAccountResult)}
 
 		if f.Filter != "business" && f.LastName == "" && f.Email == "" {
-			t.Render(w, r, res, []string{"Please enter at least one search criteria."})
+			t.Render(
+				w,
+				r,
+				res,
+				[]string{"Please enter at least one search criteria."},
+			)
 			return
 		}
 
@@ -284,7 +293,10 @@ func (a *accountHandler) updateAccount() func(http.ResponseWriter, *http.Request
 		// Validate the user inputs.
 		errorMessages := []string{}
 		if formData.CurrentPassword != "" {
-			_, err := service.User.Login(formData.User.Email, formData.CurrentPassword)
+			_, err := service.User.Login(
+				formData.User.Email,
+				formData.CurrentPassword,
+			)
 			if err != nil {
 				l.Logger.Error("appServer UpdateAccount failed", zap.Error(err))
 				t.Error(w, r, formData, err)
@@ -298,7 +310,10 @@ func (a *accountHandler) updateAccount() func(http.ResponseWriter, *http.Request
 			errorMessages = append(errorMessages, data.Validate()...)
 		}
 		if len(errorMessages) > 0 {
-			l.Logger.Info("appServer UpdateAccount failed", zap.Strings("input invalid", errorMessages))
+			l.Logger.Info(
+				"appServer UpdateAccount failed",
+				zap.Strings("input invalid", errorMessages),
+			)
 			t.Render(w, r, formData, errorMessages)
 			return
 		}
@@ -311,14 +326,24 @@ func (a *accountHandler) updateAccount() func(http.ResponseWriter, *http.Request
 			return
 		}
 
-		offersAdded, offersRemoved := helper.TagDifference(formData.Business.Offers, oldBusiness.Offers)
+		offersAdded, offersRemoved := helper.TagDifference(
+			formData.Business.Offers,
+			oldBusiness.Offers,
+		)
 		formData.Business.OffersAdded = offersAdded
 		formData.Business.OffersRemoved = offersRemoved
-		wantsAdded, wantsRemoved := helper.TagDifference(formData.Business.Wants, oldBusiness.Wants)
+		wantsAdded, wantsRemoved := helper.TagDifference(
+			formData.Business.Wants,
+			oldBusiness.Wants,
+		)
 		formData.Business.WantsAdded = wantsAdded
 		formData.Business.WantsRemoved = wantsRemoved
 
-		err = service.Business.UpdateBusiness(user.CompanyID, formData.Business, false)
+		err = service.Business.UpdateBusiness(
+			user.CompanyID,
+			formData.Business,
+			false,
+		)
 		if err != nil {
 			l.Logger.Error("appServer UpdateAccount failed", zap.Error(err))
 			t.Error(w, r, formData, err)
@@ -326,7 +351,10 @@ func (a *accountHandler) updateAccount() func(http.ResponseWriter, *http.Request
 		}
 
 		if formData.CurrentPassword != "" && formData.ConfirmPassword != "" {
-			err = service.User.ResetPassword(user.Email, formData.ConfirmPassword)
+			err = service.User.ResetPassword(
+				user.Email,
+				formData.ConfirmPassword,
+			)
 			if err != nil {
 				l.Logger.Error("appServer UpdateAccount failed", zap.Error(err))
 				t.Error(w, r, formData, err)
@@ -335,9 +363,19 @@ func (a *accountHandler) updateAccount() func(http.ResponseWriter, *http.Request
 		}
 
 		go func() {
-			err := service.UserAction.Log(log.User.ModifyAccount(user, formData.User, oldBusiness, formData.Business))
+			err := service.UserAction.Log(
+				log.User.ModifyAccount(
+					user,
+					formData.User,
+					oldBusiness,
+					formData.Business,
+				),
+			)
 			if err != nil {
-				l.Logger.Error("BuildModifyAccountAction failed", zap.Error(err))
+				l.Logger.Error(
+					"BuildModifyAccountAction failed",
+					zap.Error(err),
+				)
 			}
 		}()
 

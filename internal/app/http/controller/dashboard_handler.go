@@ -67,13 +67,19 @@ func (d *dashBoardHandler) dashboardPage() func(http.ResponseWriter, *http.Reque
 			lastLoginDate = user.LastLoginDate
 		}
 
-		matchedOffers, err := service.Tag.MatchOffers(helper.GetTagNames(business.Offers), lastLoginDate)
+		matchedOffers, err := service.Tag.MatchOffers(
+			helper.GetTagNames(business.Offers),
+			lastLoginDate,
+		)
 		if err != nil {
 			l.Logger.Error("DashboardPage failed", zap.Error(err))
 			t.Error(w, r, nil, err)
 			return
 		}
-		matchedWants, err := service.Tag.MatchWants(helper.GetTagNames(business.Wants), lastLoginDate)
+		matchedWants, err := service.Tag.MatchWants(
+			helper.GetTagNames(business.Wants),
+			lastLoginDate,
+		)
 		if err != nil {
 			l.Logger.Error("DashboardPage failed", zap.Error(err))
 			t.Error(w, r, nil, err)

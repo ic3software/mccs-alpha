@@ -34,7 +34,9 @@ func (lh *logHandler) RegisterRoutes(
 ) {
 	lh.once.Do(func() {
 		adminPrivate.Path("/log").HandlerFunc(lh.logPage()).Methods("GET")
-		adminPrivate.Path("/log/search").HandlerFunc(lh.searchLog()).Methods("GET")
+		adminPrivate.Path("/log/search").
+			HandlerFunc(lh.searchLog()).
+			Methods("GET")
 	})
 }
 
@@ -85,7 +87,10 @@ func (lh *logHandler) searchLog() func(http.ResponseWriter, *http.Request) {
 			DateTo:   util.ParseTime(f.DateTo),
 		}
 
-		userAction, totalPages, err := service.UserAction.Find(&c, int64(f.Page))
+		userAction, totalPages, err := service.UserAction.Find(
+			&c,
+			int64(f.Page),
+		)
 		res.TotalPages = totalPages
 		res.UserActions = userAction
 		if err != nil {
