@@ -18,7 +18,7 @@ func GetLoggedInUser() mux.MiddlewareFunc {
 				return
 			}
 			mccsToken := cookie.Value
-			claims, err := jwt.ValidateToken(mccsToken)
+			claims, err := jwt.NewJWTManager().ValidateToken(mccsToken)
 			if err != nil {
 				next.ServeHTTP(w, r)
 				return

@@ -4,80 +4,80 @@ import (
 	"crypto/rsa"
 	"errors"
 	"log"
+	"os"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/ic3network/mccs-alpha/global"
-	"github.com/spf13/viper"
+	jwtlib "github.com/golang-jwt/jwt/v5"
 )
 
-var j *JWT
-
-func init() {
-	global.Init()
-	j = New()
-}
-
-// JWT is a prioritized configuration registry.
-type JWT struct {
+// JWTManager manages JWT operations.
+type JWTManager struct {
 	signKey   *rsa.PrivateKey
 	verifyKey *rsa.PublicKey
 }
 
-// New returns an initialized JWT instance.
-func New() *JWT {
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(viper.GetString("jwt.private_key")))
-	if err != nil {
-		log.Fatal(err)
-	}
-	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(viper.GetString("jwt.public_key")))
+// NewJWTManager initializes and returns a new JWTManager instance.
+func NewJWTManager() *JWTManager {
+	privateKeyPEM := os.Getenv("jwt.private_key")
+	publicKeyPEM := os.Getenv("jwt.public_key")
+
+	signKey, err := jwtlib.ParseRSAPrivateKeyFromPEM([]byte(privateKeyPEM))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	j := new(JWT)
-	j.signKey = signKey
-	j.verifyKey = verifyKey
-	return j
+	verifyKey, err := jwtlib.ParseRSAPublicKeyFromPEM([]byte(publicKeyPEM))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return &JWTManager{
+		signKey:   signKey,
+		verifyKey: verifyKey,
+	}
 }
 
-type claims struct {
-	jwt.StandardClaims
+type userClaims struct {
+	jwtlib.RegisteredClaims
 	UserID string `json:"userID"`
 	Admin  bool   `json:"admin"`
 }
 
-// GenerateToken generates a jwt token.
-func GenerateToken(id string, admin bool) (string, error) { return j.generateToken(id, admin) }
-func (j *JWT) generateToken(id string, admin bool) (string, error) {
-	c := claims{
-		UserID: id,
-		Admin:  admin,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+// GenerateToken generates a JWT token for a user.
+func (jm *JWTManager) GenerateToken(
+	userID string,
+	isAdmin bool,
+) (string, error) {
+	claims := userClaims{
+		UserID: userID,
+		Admin:  isAdmin,
+		RegisteredClaims: jwtlib.RegisteredClaims{
+			ExpiresAt: jwtlib.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, c)
-	tokenString, err := token.SignedString(j.signKey)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
+	token := jwtlib.NewWithClaims(jwtlib.SigningMethodRS256, claims)
+	return token.SignedString(jm.signKey)
 }
 
-// ValidateToken validate a jwt token.
-func ValidateToken(tokenString string) (*claims, error) { return j.validateToken(tokenString) }
-func (j *JWT) validateToken(tokenString string) (*claims, error) {
-	c := &claims{}
-	tkn, err := jwt.ParseWithClaims(tokenString, c, func(token *jwt.Token) (interface{}, error) {
-		return j.verifyKey, nil
-	})
+// ValidateToken validates a JWT token and returns the associated claims.
+func (jm *JWTManager) ValidateToken(tokenString string) (*userClaims, error) {
+	claims := &userClaims{}
+	token, err := jwtlib.ParseWithClaims(
+		tokenString,
+		claims,
+		func(token *jwtlib.Token) (interface{}, error) {
+			return jm.verifyKey, nil
+		},
+	)
+
 	if err != nil {
-		return &claims{}, err
+		return nil, err
 	}
-	if !tkn.Valid {
-		return &claims{}, errors.New("Invalid token")
+
+	if !token.Valid {
+		return nil, errors.New("invalid token")
 	}
-	return c, nil
+
+	return claims, nil
 }

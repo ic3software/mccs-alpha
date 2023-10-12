@@ -126,7 +126,7 @@ func (a *adminUserHandler) loginHandler() func(http.ResponseWriter, *http.Reques
 			return
 		}
 
-		token, err := jwt.GenerateToken(user.ID.Hex(), true)
+		token, err := jwt.NewJWTManager().GenerateToken(user.ID.Hex(), true)
 		http.SetCookie(w, cookie.CreateCookie(token))
 
 		go func() {

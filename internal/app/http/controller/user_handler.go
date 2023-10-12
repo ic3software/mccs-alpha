@@ -144,7 +144,7 @@ func (u *userHandler) registerHandler() func(http.ResponseWriter, *http.Request)
 			return
 		}
 
-		token, err := jwt.GenerateToken(d.User.ID.Hex(), false)
+		token, err := jwt.NewJWTManager().GenerateToken(d.User.ID.Hex(), false)
 		if err != nil {
 			l.Logger.Error("RegisterHandler failed", zap.Error(err))
 			http.Redirect(w, r, "/login", http.StatusFound)
@@ -259,7 +259,7 @@ func (u *userHandler) loginHandler() func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		token, err := jwt.GenerateToken(user.ID.Hex(), false)
+		token, err := jwt.NewJWTManager().GenerateToken(user.ID.Hex(), false)
 		http.SetCookie(w, cookie.CreateCookie(token))
 
 		// CurrentLoginDate and CurrentLoginIP are the previous informations.
