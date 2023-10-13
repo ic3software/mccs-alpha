@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid/v5"
 	"github.com/gorilla/mux"
 	"github.com/ic3network/mccs-alpha/internal/app/service"
 	"github.com/ic3network/mccs-alpha/internal/app/types"

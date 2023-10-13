@@ -4,15 +4,15 @@ go 1.19
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0
-	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/gofrs/uuid/v5 v5.0.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
-	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/now v1.1.5
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron v1.2.0
-	github.com/segmentio/ksuid v1.0.2
+	github.com/segmentio/ksuid v1.0.4
 	github.com/sendgrid/sendgrid-go v3.5.0+incompatible
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/viper v1.17.0
