@@ -15,7 +15,7 @@ require (
 	github.com/segmentio/ksuid v1.0.4
 	github.com/sendgrid/sendgrid-go v3.5.0+incompatible
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/spf13/viper v1.18.1
+	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	github.com/unrolled/render v1.6.1
 	go.mongodb.org/mongo-driver v1.13.1
